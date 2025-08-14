@@ -8,9 +8,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/42wim/matterbridge/bridge"
-	"github.com/42wim/matterbridge/bridge/config"
-	"github.com/42wim/matterbridge/internal"
+	"github.com/JodyGaggia/matterbridge_fork/bridge"
+	"github.com/JodyGaggia/matterbridge_fork/bridge/config"
+	"github.com/JodyGaggia/matterbridge_fork/internal"
 	"github.com/d5/tengo/v2"
 	"github.com/d5/tengo/v2/stdlib"
 	lru "github.com/hashicorp/golang-lru"

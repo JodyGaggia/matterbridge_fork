@@ -3,7 +3,7 @@
 package bridgemap
 
 import (
-	btelegram "github.com/42wim/matterbridge/bridge/telegram"
+	btelegram "github.com/JodyGaggia/matterbridge_fork/bridge/telegram"
 )
 
 func init() {

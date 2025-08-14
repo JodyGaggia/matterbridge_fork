@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 	"strconv"
 
-	"github.com/42wim/matterbridge/bridge"
-	"github.com/42wim/matterbridge/bridge/config"
+	"github.com/JodyGaggia/matterbridge_fork/bridge"
+	"github.com/JodyGaggia/matterbridge_fork/bridge/config"
 	"github.com/keybase/go-keybase-chat-bot/kbchat"
 )
 

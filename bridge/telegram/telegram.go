@@ -7,9 +7,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/42wim/matterbridge/bridge"
-	"github.com/42wim/matterbridge/bridge/config"
-	"github.com/42wim/matterbridge/bridge/helper"
+	"github.com/JodyGaggia/matterbridge_fork/bridge"
+	"github.com/JodyGaggia/matterbridge_fork/bridge/config"
+	"github.com/JodyGaggia/matterbridge_fork/bridge/helper"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 

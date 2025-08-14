@@ -3,7 +3,7 @@
 package bridgemap
 
 import (
-	bmatrix "github.com/42wim/matterbridge/bridge/matrix"
+	bmatrix "github.com/JodyGaggia/matterbridge_fork/bridge/matrix"
 )
 
 func init() {

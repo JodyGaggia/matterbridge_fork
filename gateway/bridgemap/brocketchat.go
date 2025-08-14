@@ -3,7 +3,7 @@
 package bridgemap
 
 import (
-	brocketchat "github.com/42wim/matterbridge/bridge/rocketchat"
+	brocketchat "github.com/JodyGaggia/matterbridge_fork/bridge/rocketchat"
 )
 
 func init() {

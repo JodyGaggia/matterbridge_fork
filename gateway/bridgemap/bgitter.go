@@ -3,7 +3,7 @@
 package bridgemap
 
 import (
-	bgitter "github.com/42wim/matterbridge/bridge/gitter"
+	bgitter "github.com/JodyGaggia/matterbridge_fork/bridge/gitter"
 )
 
 func init() {

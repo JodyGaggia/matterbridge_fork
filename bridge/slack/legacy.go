@@ -3,8 +3,8 @@ package bslack
 import (
 	"errors"
 
-	"github.com/42wim/matterbridge/bridge"
-	"github.com/42wim/matterbridge/matterhook"
+	"github.com/JodyGaggia/matterbridge_fork/bridge"
+	"github.com/JodyGaggia/matterbridge_fork/matterhook"
 	"github.com/slack-go/slack"
 )
 

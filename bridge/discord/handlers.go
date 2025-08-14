@@ -1,7 +1,9 @@
 package bdiscord
 
 import (
-	"github.com/42wim/matterbridge/bridge/config"
+	"time"
+
+	"github.com/JodyGaggia/matterbridge_fork/bridge/config"
 	"github.com/bwmarrin/discordgo"
 	"github.com/davecgh/go-spew/spew"
 )
@@ -140,6 +142,14 @@ func (b *Bdiscord) messageCreate(s *discordgo.Session, m *discordgo.MessageCreat
 
 	// no empty messages
 	if rmsg.Text == "" {
+		return
+	}
+
+	// no ghost messages
+	timeThreeHoursAgo := time.Now().Add(-3 * time.Hour)
+
+	if rmsg.Timestamp.Before(timeThreeHoursAgo) {
+		b.Log.Infof("Ignoring old message")
 		return
 	}
 

@@ -3,7 +3,7 @@
 package bridgemap
 
 import (
-	bsshchat "github.com/42wim/matterbridge/bridge/sshchat"
+	bsshchat "github.com/JodyGaggia/matterbridge_fork/bridge/sshchat"
 )
 
 func init() {

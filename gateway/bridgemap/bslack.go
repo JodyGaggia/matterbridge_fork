@@ -3,7 +3,7 @@
 package bridgemap
 
 import (
-	bslack "github.com/42wim/matterbridge/bridge/slack"
+	bslack "github.com/JodyGaggia/matterbridge_fork/bridge/slack"
 )
 
 func init() {
