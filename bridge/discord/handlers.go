@@ -148,7 +148,7 @@ func (b *Bdiscord) messageCreate(s *discordgo.Session, m *discordgo.MessageCreat
 	// no ghost messages
 	timeThreeHoursAgo := time.Now().Add(-3 * time.Hour)
 
-	if rmsg.Timestamp.Before(timeThreeHoursAgo) {
+	if m.Message.Timestamp.Before(timeThreeHoursAgo) {
 		b.Log.Infof("Ignoring old message")
 		return
 	}
