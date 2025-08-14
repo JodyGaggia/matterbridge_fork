@@ -6,7 +6,7 @@ import (
 
 // StoriesBanOwner allows to hide stories from chosen sources from current user's feed.
 //
-// https://dev.vk.com/method/stories.banOwner
+// https://vk.com/dev/stories.banOwner
 func (vk *VK) StoriesBanOwner(params Params) (response int, err error) {
 	err = vk.RequestUnmarshal("stories.banOwner", &response, params)
 	return
@@ -14,7 +14,7 @@ func (vk *VK) StoriesBanOwner(params Params) (response int, err error) {
 
 // StoriesDelete allows to delete story.
 //
-// https://dev.vk.com/method/stories.delete
+// https://vk.com/dev/stories.delete
 func (vk *VK) StoriesDelete(params Params) (response int, err error) {
 	err = vk.RequestUnmarshal("stories.delete", &response, params)
 	return
@@ -30,9 +30,9 @@ type StoriesGetResponse struct {
 
 // StoriesGet returns stories available for current user.
 //
-//	extended=0
+// 	extended=0
 //
-// https://dev.vk.com/method/stories.get
+// https://vk.com/dev/stories.get
 func (vk *VK) StoriesGet(params Params) (response StoriesGetResponse, err error) {
 	err = vk.RequestUnmarshal("stories.get", &response, params, Params{"extended": false})
 
@@ -50,9 +50,9 @@ type StoriesGetExtendedResponse struct {
 
 // StoriesGetExtended returns stories available for current user.
 //
-//	extended=1
+// 	extended=1
 //
-// https://dev.vk.com/method/stories.get
+// https://vk.com/dev/stories.get
 func (vk *VK) StoriesGetExtended(params Params) (response StoriesGetExtendedResponse, err error) {
 	err = vk.RequestUnmarshal("stories.get", &response, params, Params{"extended": true})
 
@@ -67,9 +67,9 @@ type StoriesGetBannedResponse struct {
 
 // StoriesGetBanned returns list of sources hidden from current user's feed.
 //
-//	extended=0
+// 	extended=0
 //
-// https://dev.vk.com/method/stories.getBanned
+// https://vk.com/dev/stories.getBanned
 func (vk *VK) StoriesGetBanned(params Params) (response StoriesGetBannedResponse, err error) {
 	err = vk.RequestUnmarshal("stories.getBanned", &response, params, Params{"extended": false})
 
@@ -85,9 +85,9 @@ type StoriesGetBannedExtendedResponse struct {
 
 // StoriesGetBannedExtended returns list of sources hidden from current user's feed.
 //
-//	extended=1
+// 	extended=1
 //
-// https://dev.vk.com/method/stories.getBanned
+// https://vk.com/dev/stories.getBanned
 func (vk *VK) StoriesGetBannedExtended(params Params) (response StoriesGetBannedExtendedResponse, err error) {
 	err = vk.RequestUnmarshal("stories.getBanned", &response, params, Params{"extended": true})
 
@@ -102,9 +102,9 @@ type StoriesGetByIDResponse struct {
 
 // StoriesGetByID returns story by its ID.
 //
-//	extended=0
+// 	extended=0
 //
-// https://dev.vk.com/method/stories.getById
+// https://vk.com/dev/stories.getById
 func (vk *VK) StoriesGetByID(params Params) (response StoriesGetByIDResponse, err error) {
 	err = vk.RequestUnmarshal("stories.getById", &response, params, Params{"extended": false})
 
@@ -120,9 +120,9 @@ type StoriesGetByIDExtendedResponse struct {
 
 // StoriesGetByIDExtended returns story by its ID.
 //
-//	extended=1
+// 	extended=1
 //
-// https://dev.vk.com/method/stories.getById
+// https://vk.com/dev/stories.getById
 func (vk *VK) StoriesGetByIDExtended(params Params) (response StoriesGetByIDExtendedResponse, err error) {
 	err = vk.RequestUnmarshal("stories.getById", &response, params, Params{"extended": true})
 
@@ -138,7 +138,7 @@ type StoriesGetPhotoUploadServerResponse struct {
 
 // StoriesGetPhotoUploadServer returns URL for uploading a story with photo.
 //
-// https://dev.vk.com/method/stories.getPhotoUploadServer
+// https://vk.com/dev/stories.getPhotoUploadServer
 func (vk *VK) StoriesGetPhotoUploadServer(params Params) (response StoriesGetPhotoUploadServerResponse, err error) {
 	err = vk.RequestUnmarshal("stories.getPhotoUploadServer", &response, params)
 	return
@@ -152,9 +152,9 @@ type StoriesGetRepliesResponse struct {
 
 // StoriesGetReplies returns replies to the story.
 //
-//	extended=0
+// 	extended=0
 //
-// https://dev.vk.com/method/stories.getReplies
+// https://vk.com/dev/stories.getReplies
 func (vk *VK) StoriesGetReplies(params Params) (response StoriesGetRepliesResponse, err error) {
 	err = vk.RequestUnmarshal("stories.getReplies", &response, params, Params{"extended": false})
 
@@ -170,9 +170,9 @@ type StoriesGetRepliesExtendedResponse struct {
 
 // StoriesGetRepliesExtended returns replies to the story.
 //
-//	extended=1
+// 	extended=1
 //
-// https://dev.vk.com/method/stories.getReplies
+// https://vk.com/dev/stories.getReplies
 func (vk *VK) StoriesGetRepliesExtended(params Params) (response StoriesGetRepliesExtendedResponse, err error) {
 	err = vk.RequestUnmarshal("stories.getReplies", &response, params, Params{"extended": true})
 
@@ -184,7 +184,7 @@ type StoriesGetStatsResponse object.StoriesStoryStats
 
 // StoriesGetStats return statistics data for the story.
 //
-// https://dev.vk.com/method/stories.getStats
+// https://vk.com/dev/stories.getStats
 func (vk *VK) StoriesGetStats(params Params) (response StoriesGetStatsResponse, err error) {
 	err = vk.RequestUnmarshal("stories.getStats", &response, params)
 	return
@@ -199,7 +199,7 @@ type StoriesGetVideoUploadServerResponse struct {
 
 // StoriesGetVideoUploadServer allows to receive URL for uploading story with video.
 //
-// https://dev.vk.com/method/stories.getVideoUploadServer
+// https://vk.com/dev/stories.getVideoUploadServer
 func (vk *VK) StoriesGetVideoUploadServer(params Params) (response StoriesGetVideoUploadServerResponse, err error) {
 	err = vk.RequestUnmarshal("stories.getVideoUploadServer", &response, params)
 	return
@@ -213,9 +213,9 @@ type StoriesGetViewersResponse struct {
 
 // StoriesGetViewers returns a list of story viewers.
 //
-//	extended=0
+// 	extended=0
 //
-// https://dev.vk.com/method/stories.getViewers
+// https://vk.com/dev/stories.getViewers
 func (vk *VK) StoriesGetViewers(params Params) (response StoriesGetViewersResponse, err error) {
 	err = vk.RequestUnmarshal("stories.getViewers", &response, params)
 
@@ -224,7 +224,7 @@ func (vk *VK) StoriesGetViewers(params Params) (response StoriesGetViewersRespon
 
 // StoriesHideAllReplies hides all replies in the last 24 hours from the user to current user's stories.
 //
-// https://dev.vk.com/method/stories.hideAllReplies
+// https://vk.com/dev/stories.hideAllReplies
 func (vk *VK) StoriesHideAllReplies(params Params) (response int, err error) {
 	err = vk.RequestUnmarshal("stories.hideAllReplies", &response, params)
 	return
@@ -232,7 +232,7 @@ func (vk *VK) StoriesHideAllReplies(params Params) (response int, err error) {
 
 // StoriesHideReply hides the reply to the current user's story.
 //
-// https://dev.vk.com/method/stories.hideReply
+// https://vk.com/dev/stories.hideReply
 func (vk *VK) StoriesHideReply(params Params) (response int, err error) {
 	err = vk.RequestUnmarshal("stories.hideReply", &response, params)
 	return
@@ -247,7 +247,7 @@ type StoriesSaveResponse struct {
 
 // StoriesSave method.
 //
-// https://dev.vk.com/method/stories.save
+// https://vk.com/dev/stories.save
 func (vk *VK) StoriesSave(params Params) (response StoriesSaveResponse, err error) {
 	err = vk.RequestUnmarshal("stories.save", &response, params)
 	return
@@ -261,9 +261,9 @@ type StoriesSearchResponse struct {
 
 // StoriesSearch returns search results for stories.
 //
-//	extended=0
+// 	extended=0
 //
-// https://dev.vk.com/method/stories.search
+// https://vk.com/dev/stories.search
 func (vk *VK) StoriesSearch(params Params) (response StoriesSearchResponse, err error) {
 	err = vk.RequestUnmarshal("stories.search", &response, params, Params{"extended": false})
 
@@ -279,9 +279,9 @@ type StoriesSearchExtendedResponse struct {
 
 // StoriesSearchExtended returns search results for stories.
 //
-//	extended=1
+// 	extended=1
 //
-// https://dev.vk.com/method/stories.search
+// https://vk.com/dev/stories.search
 func (vk *VK) StoriesSearchExtended(params Params) (response StoriesSearchExtendedResponse, err error) {
 	err = vk.RequestUnmarshal("stories.search", &response, params, Params{"extended": true})
 
@@ -293,7 +293,7 @@ func (vk *VK) StoriesSearchExtended(params Params) (response StoriesSearchExtend
 // Available for applications with type VK Mini Apps. The default method is
 // not available to applications.
 //
-// https://dev.vk.com/method/stories.sendInteraction
+// https://vk.com/dev/stories.sendInteraction
 func (vk *VK) StoriesSendInteraction(params Params) (response int, err error) {
 	err = vk.RequestUnmarshal("stories.sendInteraction", &response, params)
 	return
@@ -301,7 +301,7 @@ func (vk *VK) StoriesSendInteraction(params Params) (response int, err error) {
 
 // StoriesUnbanOwner allows to show stories from hidden sources in current user's feed.
 //
-// https://dev.vk.com/method/stories.unbanOwner
+// https://vk.com/dev/stories.unbanOwner
 func (vk *VK) StoriesUnbanOwner(params Params) (response int, err error) {
 	err = vk.RequestUnmarshal("stories.unbanOwner", &response, params)
 	return

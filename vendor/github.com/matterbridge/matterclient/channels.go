@@ -1,10 +1,9 @@
 package matterclient
 
 import (
-	"context"
 	"strings"
 
-	"github.com/mattermost/mattermost/server/public/model"
+	"github.com/mattermost/mattermost-server/v6/model"
 )
 
 // GetChannels returns all channels we're members off
@@ -81,14 +80,7 @@ func (m *Client) getChannelIDTeam(name string, teamID string) string {
 		}
 	}
 
-	// Fallback if it's not found in the t.Channels or t.MoreChannels cache.
-	// This also let's us join private channels.
-	channel, _, err := m.Client.GetChannelByName(context.TODO(), name, teamID, "")
-	if err != nil {
-		return ""
-	}
-
-	return channel.Id
+	return ""
 }
 
 func (m *Client) GetChannelName(channelID string) string {
@@ -130,7 +122,7 @@ func (m *Client) GetLastViewedAt(channelID string) int64 {
 	defer m.RUnlock()
 
 	for {
-		res, resp, err := m.Client.GetChannelMember(context.TODO(), channelID, m.User.Id, "")
+		res, resp, err := m.Client.GetChannelMember(channelID, m.User.Id, "")
 		if err == nil {
 			return res.LastViewedAt
 		}
@@ -198,7 +190,7 @@ func (m *Client) JoinChannel(channelID string) error {
 
 	m.logger.Debug("Joining ", channelID)
 
-	_, _, err := m.Client.AddChannelMember(context.TODO(), channelID, m.User.Id)
+	_, _, err := m.Client.AddChannelMember(channelID, m.User.Id)
 	if err != nil {
 		return err
 	}
@@ -213,10 +205,8 @@ func (m *Client) UpdateChannelsTeam(teamID string) error {
 		err        error
 	)
 
-	ctx := context.TODO()
-
 	for {
-		mmchannels, resp, err = m.Client.GetChannelsForTeamForUser(ctx, teamID, m.User.Id, false, "")
+		mmchannels, resp, err = m.Client.GetChannelsForTeamForUser(teamID, m.User.Id, false, "")
 		if err == nil {
 			break
 		}
@@ -234,13 +224,8 @@ func (m *Client) UpdateChannelsTeam(teamID string) error {
 		}
 	}
 
-	idx := 0
-	max := 200
-
-	var moreChannels []*model.Channel
-
 	for {
-		mmchannels, resp, err = m.Client.GetPublicChannelsForTeam(ctx, teamID, idx, max, "")
+		mmchannels, resp, err = m.Client.GetPublicChannelsForTeam(teamID, 0, 5000, "")
 		if err == nil {
 			break
 		}
@@ -250,27 +235,10 @@ func (m *Client) UpdateChannelsTeam(teamID string) error {
 		}
 	}
 
-	for len(mmchannels) > 0 {
-		moreChannels = append(moreChannels, mmchannels...)
-
-		for {
-			mmchannels, resp, err = m.Client.GetPublicChannelsForTeam(ctx, teamID, idx, max, "")
-			if err == nil {
-				idx++
-
-				break
-			}
-
-			if err := m.HandleRatelimit("GetPublicChannelsForTeam", resp); err != nil {
-				return err
-			}
-		}
-	}
-
 	for idx, t := range m.OtherTeams {
 		if t.ID == teamID {
 			m.Lock()
-			m.OtherTeams[idx].MoreChannels = moreChannels
+			m.OtherTeams[idx].MoreChannels = mmchannels
 			m.Unlock()
 		}
 	}
@@ -284,10 +252,6 @@ func (m *Client) UpdateChannels() error {
 	}
 
 	for _, t := range m.OtherTeams {
-		// We've already populated users/channels for team in the above.
-		if t.ID == m.Team.ID {
-			continue
-		}
 		if err := m.UpdateChannelsTeam(t.ID); err != nil {
 			return err
 		}
@@ -301,7 +265,7 @@ func (m *Client) UpdateChannelHeader(channelID string, header string) {
 
 	m.logger.Debugf("updating channelheader %#v, %#v", channelID, header)
 
-	_, _, err := m.Client.UpdateChannel(context.TODO(), channel)
+	_, _, err := m.Client.UpdateChannel(channel)
 	if err != nil {
 		m.logger.Error(err)
 	}
@@ -313,7 +277,7 @@ func (m *Client) UpdateLastViewed(channelID string) error {
 	view := &model.ChannelView{ChannelId: channelID}
 
 	for {
-		_, resp, err := m.Client.ViewChannel(context.TODO(), m.User.Id, view)
+		_, resp, err := m.Client.ViewChannel(m.User.Id, view)
 		if err == nil {
 			return nil
 		}

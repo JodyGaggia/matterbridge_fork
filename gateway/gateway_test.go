@@ -18,6 +18,8 @@ var testconfig = []byte(`
 server=""
 [mattermost.test]
 server=""
+[gitter.42wim]
+server=""
 [discord.test]
 server=""
 [slack.test]
@@ -31,6 +33,11 @@ server=""
     account = "irc.freenode"
     channel = "#wimtesting"
     
+    [[gateway.inout]]
+    account="gitter.42wim"
+    channel="42wim/testroom"
+    #channel="matterbridge/Lobby"
+
     [[gateway.inout]]
     account = "discord.test"
     channel = "general"
@@ -45,6 +52,8 @@ var testconfig2 = []byte(`
 server=""
 [mattermost.test]
 server=""
+[gitter.42wim]
+server=""
 [discord.test]
 server=""
 [slack.test]
@@ -58,6 +67,10 @@ server=""
     account = "irc.freenode"
     channel = "#wimtesting"
     
+    [[gateway.in]]
+    account="gitter.42wim"
+    channel="42wim/testroom"
+
     [[gateway.inout]]
     account = "discord.test"
     channel = "general"
@@ -73,6 +86,10 @@ server=""
     account = "irc.freenode"
     channel = "#wimtesting2"
     
+    [[gateway.out]]
+    account="gitter.42wim"
+    channel="42wim/testroom"
+
     [[gateway.out]]
     account = "discord.test"
     channel = "general2"
@@ -167,18 +184,31 @@ func maketestRouter(input []byte) *Router {
 	}
 	return r
 }
-
 func TestNewRouter(t *testing.T) {
 	r := maketestRouter(testconfig)
 	assert.Equal(t, 1, len(r.Gateways))
-	assert.Equal(t, 3, len(r.Gateways["bridge1"].Bridges))
-	assert.Equal(t, 3, len(r.Gateways["bridge1"].Channels))
+	assert.Equal(t, 4, len(r.Gateways["bridge1"].Bridges))
+	assert.Equal(t, 4, len(r.Gateways["bridge1"].Channels))
 	r = maketestRouter(testconfig2)
 	assert.Equal(t, 2, len(r.Gateways))
-	assert.Equal(t, 3, len(r.Gateways["bridge1"].Bridges))
-	assert.Equal(t, 2, len(r.Gateways["bridge2"].Bridges))
-	assert.Equal(t, 3, len(r.Gateways["bridge1"].Channels))
-	assert.Equal(t, 2, len(r.Gateways["bridge2"].Channels))
+	assert.Equal(t, 4, len(r.Gateways["bridge1"].Bridges))
+	assert.Equal(t, 3, len(r.Gateways["bridge2"].Bridges))
+	assert.Equal(t, 4, len(r.Gateways["bridge1"].Channels))
+	assert.Equal(t, 3, len(r.Gateways["bridge2"].Channels))
+	assert.Equal(t, &config.ChannelInfo{
+		Name:        "42wim/testroom",
+		Direction:   "out",
+		ID:          "42wim/testroomgitter.42wim",
+		Account:     "gitter.42wim",
+		SameChannel: map[string]bool{"bridge2": false},
+	}, r.Gateways["bridge2"].Channels["42wim/testroomgitter.42wim"])
+	assert.Equal(t, &config.ChannelInfo{
+		Name:        "42wim/testroom",
+		Direction:   "in",
+		ID:          "42wim/testroomgitter.42wim",
+		Account:     "gitter.42wim",
+		SameChannel: map[string]bool{"bridge1": false},
+	}, r.Gateways["bridge1"].Channels["42wim/testroomgitter.42wim"])
 	assert.Equal(t, &config.ChannelInfo{
 		Name:        "general",
 		Direction:   "inout",
@@ -211,6 +241,8 @@ func TestGetDestChannel(t *testing.T) {
 				SameChannel: map[string]bool{"bridge1": false},
 				Options:     config.ChannelOptions{Key: ""},
 			}}, r.Gateways["bridge1"].getDestChannel(msg, *br))
+		case "gitter.42wim":
+			assert.Equal(t, []config.ChannelInfo(nil), r.Gateways["bridge1"].getDestChannel(msg, *br))
 		case "irc.freenode":
 			assert.Equal(t, []config.ChannelInfo(nil), r.Gateways["bridge1"].getDestChannel(msg, *br))
 		}
@@ -388,7 +420,6 @@ func (s *ignoreTestSuite) SetupSuite() {
 	logger.SetOutput(ioutil.Discard)
 	s.gw = &Gateway{logger: logrus.NewEntry(logger)}
 }
-
 func (s *ignoreTestSuite) TestIgnoreTextEmpty() {
 	extraFile := make(map[string][]interface{})
 	extraAttach := make(map[string][]interface{})
@@ -430,6 +461,7 @@ func (s *ignoreTestSuite) TestIgnoreTextEmpty() {
 		output := s.gw.ignoreTextEmpty(testcase.input)
 		s.Assert().Equalf(testcase.output, output, "case '%s' failed", testname)
 	}
+
 }
 
 func (s *ignoreTestSuite) TestIgnoreTexts() {

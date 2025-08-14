@@ -125,6 +125,7 @@ func (cli *Client) fetchPreKeys(ctx context.Context, users []types.JID) (map[typ
 			continue
 		}
 		jid := child.AttrGetter().JID("jid")
+		jid.AD = true
 		bundle, err := nodeToPreKeyBundle(uint32(jid.Device), child)
 		respData[jid] = preKeyResp{bundle, err}
 	}
@@ -174,34 +175,19 @@ func nodeToPreKeyBundle(deviceID uint32, node waBinary.Node) (*prekey.Bundle, er
 	}
 	identityKeyPub := *(*[32]byte)(identityKeyRaw)
 
-	preKeyNode, ok := keysNode.GetOptionalChildByTag("key")
-	preKey := &keys.PreKey{}
-	if ok {
-		var err error
-		preKey, err = nodeToPreKey(preKeyNode)
-		if err != nil {
-			return nil, fmt.Errorf("invalid prekey in prekey response: %w", err)
-		}
+	preKey, err := nodeToPreKey(keysNode.GetChildByTag("key"))
+	if err != nil {
+		return nil, fmt.Errorf("invalid prekey in prekey response: %w", err)
 	}
-
 	signedPreKey, err := nodeToPreKey(keysNode.GetChildByTag("skey"))
 	if err != nil {
 		return nil, fmt.Errorf("invalid signed prekey in prekey response: %w", err)
 	}
 
-	var bundle *prekey.Bundle
-	if ok {
-		bundle = prekey.NewBundle(registrationID, deviceID,
-			optional.NewOptionalUint32(preKey.KeyID), signedPreKey.KeyID,
-			ecc.NewDjbECPublicKey(*preKey.Pub), ecc.NewDjbECPublicKey(*signedPreKey.Pub), *signedPreKey.Signature,
-			identity.NewKey(ecc.NewDjbECPublicKey(identityKeyPub)))
-	} else {
-		bundle = prekey.NewBundle(registrationID, deviceID, optional.NewEmptyUint32(), signedPreKey.KeyID,
-			nil, ecc.NewDjbECPublicKey(*signedPreKey.Pub), *signedPreKey.Signature,
-			identity.NewKey(ecc.NewDjbECPublicKey(identityKeyPub)))
-	}
-
-	return bundle, nil
+	return prekey.NewBundle(registrationID, deviceID,
+		optional.NewOptionalUint32(preKey.KeyID), signedPreKey.KeyID,
+		ecc.NewDjbECPublicKey(*preKey.Pub), ecc.NewDjbECPublicKey(*signedPreKey.Pub), *signedPreKey.Signature,
+		identity.NewKey(ecc.NewDjbECPublicKey(identityKeyPub))), nil
 }
 
 func nodeToPreKey(node waBinary.Node) (*keys.PreKey, error) {

@@ -7,9 +7,9 @@
 package whatsmeow
 
 import (
+	"crypto/rand"
 	"fmt"
 
-	"go.mau.fi/util/random"
 	"google.golang.org/protobuf/proto"
 
 	waBinary "go.mau.fi/whatsmeow/binary"
@@ -26,7 +26,7 @@ func getMediaRetryKey(mediaKey []byte) (cipherKey []byte) {
 
 func encryptMediaRetryReceipt(messageID types.MessageID, mediaKey []byte) (ciphertext, iv []byte, err error) {
 	receipt := &waProto.ServerErrorReceipt{
-		StanzaID: proto.String(messageID),
+		StanzaId: proto.String(messageID),
 	}
 	var plaintext []byte
 	plaintext, err = proto.Marshal(receipt)
@@ -34,7 +34,11 @@ func encryptMediaRetryReceipt(messageID types.MessageID, mediaKey []byte) (ciphe
 		err = fmt.Errorf("failed to marshal payload: %w", err)
 		return
 	}
-	iv = random.Bytes(12)
+	iv = make([]byte, 12)
+	_, err = rand.Read(iv)
+	if err != nil {
+		panic(err)
+	}
 	ciphertext, err = gcmutil.Encrypt(getMediaRetryKey(mediaKey), iv, plaintext, []byte(messageID))
 	return
 }

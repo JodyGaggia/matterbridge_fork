@@ -36,7 +36,6 @@ const (
 	IntType
 	UintType
 	NilType
-	DurationType
 	ExtensionType
 
 	// pseudo-types provided
@@ -263,7 +262,7 @@ func getNextSize(r *fwd.Reader) (uintptr, uintptr, error) {
 		return 0, 0, err
 	}
 	lead := b[0]
-	spec := getBytespec(lead)
+	spec := &sizes[lead]
 	size, mode := spec.size, spec.extra
 	if size == 0 {
 		return 0, 0, InvalidPrefixError(lead)
@@ -395,7 +394,7 @@ func (m *Reader) ReadMapKey(scratch []byte) ([]byte, error) {
 	return out, nil
 }
 
-// ReadMapKeyPtr returns a []byte pointing to the contents
+// MapKeyPtr returns a []byte pointing to the contents
 // of a valid map key. The key cannot be empty, and it
 // must be shorter than the total buffer size of the
 // *Reader. Additionally, the returned slice is only
@@ -558,12 +557,6 @@ func (m *Reader) ReadBool() (b bool, err error) {
 	}
 	_, err = m.R.Skip(1)
 	return
-}
-
-// ReadDuration reads a time.Duration from the reader
-func (m *Reader) ReadDuration() (d time.Duration, err error) {
-	i, err := m.ReadInt64()
-	return time.Duration(i), err
 }
 
 // ReadInt64 reads an int64 from the reader
@@ -1266,7 +1259,7 @@ func (m *Reader) ReadTime() (t time.Time, err error) {
 	return
 }
 
-// ReadIntf reads out the next object as a raw interface{}/any.
+// ReadIntf reads out the next object as a raw interface{}.
 // Arrays are decoded as []interface{}, and maps are decoded
 // as map[string]interface{}. Integers are decoded as int64
 // and unsigned integers are decoded as uint64.
@@ -1307,10 +1300,6 @@ func (m *Reader) ReadIntf() (i interface{}, err error) {
 
 	case TimeType:
 		i, err = m.ReadTime()
-		return
-
-	case DurationType:
-		i, err = m.ReadDuration()
 		return
 
 	case ExtensionType:

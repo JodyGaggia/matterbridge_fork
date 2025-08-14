@@ -12,6 +12,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net"
 	"os"
 	gosignal "os/signal"
@@ -114,7 +115,7 @@ func Listen(opts Options) error {
 	}
 	port := listener.Addr().(*net.TCPAddr).Port
 	portfile = filepath.Join(gopsdir, strconv.Itoa(os.Getpid()))
-	err = os.WriteFile(portfile, []byte(strconv.Itoa(port)), os.ModePerm)
+	err = ioutil.WriteFile(portfile, []byte(strconv.Itoa(port)), os.ModePerm)
 	if err != nil {
 		return err
 	}

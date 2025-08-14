@@ -1,34 +1,36 @@
-// SPDX-License-Identifier: MIT
-// SPDX-FileCopyrightText: © 2015 LabStack LLC and Echo contributors
-
 package middleware
 
 import (
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/gommon/random"
 )
 
-// RequestIDConfig defines the config for RequestID middleware.
-type RequestIDConfig struct {
-	// Skipper defines a function to skip middleware.
-	Skipper Skipper
+type (
+	// RequestIDConfig defines the config for RequestID middleware.
+	RequestIDConfig struct {
+		// Skipper defines a function to skip middleware.
+		Skipper Skipper
 
-	// Generator defines a function to generate an ID.
-	// Optional. Defaults to generator for random string of length 32.
-	Generator func() string
+		// Generator defines a function to generate an ID.
+		// Optional. Default value random.String(32).
+		Generator func() string
 
-	// RequestIDHandler defines a function which is executed for a request id.
-	RequestIDHandler func(echo.Context, string)
+		// RequestIDHandler defines a function which is executed for a request id.
+		RequestIDHandler func(echo.Context, string)
 
-	// TargetHeader defines what header to look for to populate the id
-	TargetHeader string
-}
+		// TargetHeader defines what header to look for to populate the id
+		TargetHeader string
+	}
+)
 
-// DefaultRequestIDConfig is the default RequestID middleware config.
-var DefaultRequestIDConfig = RequestIDConfig{
-	Skipper:      DefaultSkipper,
-	Generator:    generator,
-	TargetHeader: echo.HeaderXRequestID,
-}
+var (
+	// DefaultRequestIDConfig is the default RequestID middleware config.
+	DefaultRequestIDConfig = RequestIDConfig{
+		Skipper:      DefaultSkipper,
+		Generator:    generator,
+		TargetHeader: echo.HeaderXRequestID,
+	}
+)
 
 // RequestID returns a X-Request-ID middleware.
 func RequestID() echo.MiddlewareFunc {
@@ -71,5 +73,5 @@ func RequestIDWithConfig(config RequestIDConfig) echo.MiddlewareFunc {
 }
 
 func generator() string {
-	return randomString(32)
+	return random.String(32)
 }

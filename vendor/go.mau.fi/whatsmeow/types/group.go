@@ -26,7 +26,6 @@ type GroupInfo struct {
 	GroupLocked
 	GroupAnnounce
 	GroupEphemeral
-	GroupIncognito
 
 	GroupParent
 	GroupLinkedParent
@@ -80,19 +79,11 @@ type GroupAnnounce struct {
 	AnnounceVersionID string
 }
 
-type GroupIncognito struct {
-	IsIncognito bool
-}
-
 // GroupParticipant contains info about a participant of a WhatsApp group chat.
 type GroupParticipant struct {
 	JID          JID
-	LID          JID
 	IsAdmin      bool
 	IsSuperAdmin bool
-
-	// This is only present for anonymous users in announcement groups, it's an obfuscated phone number
-	DisplayName string
 
 	// When creating groups, adding some participants may fail.
 	// In such cases, the error code will be here.

@@ -1,12 +1,8 @@
-// SPDX-License-Identifier: MIT
-// SPDX-FileCopyrightText: © 2015 LabStack LLC and Echo contributors
-
 package middleware
 
 import (
 	"bufio"
 	"bytes"
-	"errors"
 	"io"
 	"net"
 	"net/http"
@@ -14,28 +10,32 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-// BodyDumpConfig defines the config for BodyDump middleware.
-type BodyDumpConfig struct {
-	// Skipper defines a function to skip middleware.
-	Skipper Skipper
+type (
+	// BodyDumpConfig defines the config for BodyDump middleware.
+	BodyDumpConfig struct {
+		// Skipper defines a function to skip middleware.
+		Skipper Skipper
 
-	// Handler receives request and response payload.
-	// Required.
-	Handler BodyDumpHandler
-}
+		// Handler receives request and response payload.
+		// Required.
+		Handler BodyDumpHandler
+	}
 
-// BodyDumpHandler receives the request and response payload.
-type BodyDumpHandler func(echo.Context, []byte, []byte)
+	// BodyDumpHandler receives the request and response payload.
+	BodyDumpHandler func(echo.Context, []byte, []byte)
 
-type bodyDumpResponseWriter struct {
-	io.Writer
-	http.ResponseWriter
-}
+	bodyDumpResponseWriter struct {
+		io.Writer
+		http.ResponseWriter
+	}
+)
 
-// DefaultBodyDumpConfig is the default BodyDump middleware config.
-var DefaultBodyDumpConfig = BodyDumpConfig{
-	Skipper: DefaultSkipper,
-}
+var (
+	// DefaultBodyDumpConfig is the default BodyDump middleware config.
+	DefaultBodyDumpConfig = BodyDumpConfig{
+		Skipper: DefaultSkipper,
+	}
+)
 
 // BodyDump returns a BodyDump middleware.
 //
@@ -98,16 +98,9 @@ func (w *bodyDumpResponseWriter) Write(b []byte) (int, error) {
 }
 
 func (w *bodyDumpResponseWriter) Flush() {
-	err := responseControllerFlush(w.ResponseWriter)
-	if err != nil && errors.Is(err, http.ErrNotSupported) {
-		panic(errors.New("response writer flushing is not supported"))
-	}
+	w.ResponseWriter.(http.Flusher).Flush()
 }
 
 func (w *bodyDumpResponseWriter) Hijack() (net.Conn, *bufio.ReadWriter, error) {
-	return responseControllerHijack(w.ResponseWriter)
-}
-
-func (w *bodyDumpResponseWriter) Unwrap() http.ResponseWriter {
-	return w.ResponseWriter
+	return w.ResponseWriter.(http.Hijacker).Hijack()
 }

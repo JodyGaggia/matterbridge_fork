@@ -22,6 +22,11 @@ type clientPubsubItems struct {
 	Items   []clientPubsubItem `xml:"item"`
 }
 
+type clientPubsub struct {
+	XMLName xml.Name          `xml:"pubsub"`
+	Items   clientPubsubItems `xml:"items"`
+}
+
 type clientPubsubEvent struct {
 	XMLName xml.Name          `xml:"event"`
 	XMLNS   string            `xml:"xmlns,attr"`

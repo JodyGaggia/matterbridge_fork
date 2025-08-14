@@ -1,6 +1,3 @@
-// SPDX-License-Identifier: MIT
-// SPDX-FileCopyrightText: © 2015 LabStack LLC and Echo contributors
-
 package middleware
 
 import (
@@ -12,52 +9,49 @@ import (
 	"github.com/labstack/gommon/log"
 )
 
-// LogErrorFunc defines a function for custom logging in the middleware.
-type LogErrorFunc func(c echo.Context, err error, stack []byte) error
-
-// RecoverConfig defines the config for Recover middleware.
-type RecoverConfig struct {
-	// Skipper defines a function to skip middleware.
-	Skipper Skipper
-
-	// Size of the stack to be printed.
-	// Optional. Default value 4KB.
-	StackSize int `yaml:"stack_size"`
-
-	// DisableStackAll disables formatting stack traces of all other goroutines
-	// into buffer after the trace for the current goroutine.
-	// Optional. Default value false.
-	DisableStackAll bool `yaml:"disable_stack_all"`
-
-	// DisablePrintStack disables printing stack trace.
-	// Optional. Default value as false.
-	DisablePrintStack bool `yaml:"disable_print_stack"`
-
-	// LogLevel is log level to printing stack trace.
-	// Optional. Default value 0 (Print).
-	LogLevel log.Lvl
-
+type (
 	// LogErrorFunc defines a function for custom logging in the middleware.
-	// If it's set you don't need to provide LogLevel for config.
-	// If this function returns nil, the centralized HTTPErrorHandler will not be called.
-	LogErrorFunc LogErrorFunc
+	LogErrorFunc func(c echo.Context, err error, stack []byte) error
 
-	// DisableErrorHandler disables the call to centralized HTTPErrorHandler.
-	// The recovered error is then passed back to upstream middleware, instead of swallowing the error.
-	// Optional. Default value false.
-	DisableErrorHandler bool `yaml:"disable_error_handler"`
-}
+	// RecoverConfig defines the config for Recover middleware.
+	RecoverConfig struct {
+		// Skipper defines a function to skip middleware.
+		Skipper Skipper
 
-// DefaultRecoverConfig is the default Recover middleware config.
-var DefaultRecoverConfig = RecoverConfig{
-	Skipper:             DefaultSkipper,
-	StackSize:           4 << 10, // 4 KB
-	DisableStackAll:     false,
-	DisablePrintStack:   false,
-	LogLevel:            0,
-	LogErrorFunc:        nil,
-	DisableErrorHandler: false,
-}
+		// Size of the stack to be printed.
+		// Optional. Default value 4KB.
+		StackSize int `yaml:"stack_size"`
+
+		// DisableStackAll disables formatting stack traces of all other goroutines
+		// into buffer after the trace for the current goroutine.
+		// Optional. Default value false.
+		DisableStackAll bool `yaml:"disable_stack_all"`
+
+		// DisablePrintStack disables printing stack trace.
+		// Optional. Default value as false.
+		DisablePrintStack bool `yaml:"disable_print_stack"`
+
+		// LogLevel is log level to printing stack trace.
+		// Optional. Default value 0 (Print).
+		LogLevel log.Lvl
+
+		// LogErrorFunc defines a function for custom logging in the middleware.
+		// If it's set you don't need to provide LogLevel for config.
+		LogErrorFunc LogErrorFunc
+	}
+)
+
+var (
+	// DefaultRecoverConfig is the default Recover middleware config.
+	DefaultRecoverConfig = RecoverConfig{
+		Skipper:           DefaultSkipper,
+		StackSize:         4 << 10, // 4 KB
+		DisableStackAll:   false,
+		DisablePrintStack: false,
+		LogLevel:          0,
+		LogErrorFunc:      nil,
+	}
+)
 
 // Recover returns a middleware which recovers from panics anywhere in the chain
 // and handles the control to the centralized HTTPErrorHandler.
@@ -77,7 +71,7 @@ func RecoverWithConfig(config RecoverConfig) echo.MiddlewareFunc {
 	}
 
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) (returnErr error) {
+		return func(c echo.Context) error {
 			if config.Skipper(c) {
 				return next(c)
 			}
@@ -119,12 +113,7 @@ func RecoverWithConfig(config RecoverConfig) echo.MiddlewareFunc {
 							c.Logger().Print(msg)
 						}
 					}
-
-					if err != nil && !config.DisableErrorHandler {
-						c.Error(err)
-					} else {
-						returnErr = err
-					}
+					c.Error(err)
 				}
 			}()
 			return next(c)

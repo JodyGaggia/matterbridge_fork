@@ -117,7 +117,7 @@ func (c *Client) updateRegRFC(ctx context.Context, a *Account) (*Account, error)
 	return responseAccount(res)
 }
 
-// getRegRFC is equivalent to c.GetReg but for CAs implementing RFC 8555.
+// getGegRFC is equivalent to c.GetReg but for CAs implementing RFC 8555.
 // It expects c.Discover to have already been called.
 func (c *Client) getRegRFC(ctx context.Context) (*Account, error) {
 	req := json.RawMessage(`{"onlyReturnExisting": true}`)

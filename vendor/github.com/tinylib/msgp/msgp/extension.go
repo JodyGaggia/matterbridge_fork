@@ -1,9 +1,8 @@
 package msgp
 
 import (
-	"errors"
+	"fmt"
 	"math"
-	"strconv"
 )
 
 const (
@@ -31,7 +30,7 @@ var extensionReg = make(map[int8]func() Extension)
 //
 // For example, if you wanted to register a user-defined struct:
 //
-//	msgp.RegisterExtension(10, func() msgp.Extension { &MyExtension{} })
+//  msgp.RegisterExtension(10, func() msgp.Extension { &MyExtension{} })
 //
 // RegisterExtension will panic if you call it multiple times
 // with the same 'typ' argument, or if you use a reserved
@@ -39,10 +38,10 @@ var extensionReg = make(map[int8]func() Extension)
 func RegisterExtension(typ int8, f func() Extension) {
 	switch typ {
 	case Complex64Extension, Complex128Extension, TimeExtension:
-		panic(errors.New("msgp: forbidden extension type: " + strconv.Itoa(int(typ))))
+		panic(fmt.Sprint("msgp: forbidden extension type:", typ))
 	}
 	if _, ok := extensionReg[typ]; ok {
-		panic(errors.New("msgp: RegisterExtension() called with typ " + strconv.Itoa(int(typ)) + " more than once"))
+		panic(fmt.Sprint("msgp: RegisterExtension() called with typ", typ, "more than once"))
 	}
 	extensionReg[typ] = f
 }
@@ -57,7 +56,7 @@ type ExtensionTypeError struct {
 
 // Error implements the error interface
 func (e ExtensionTypeError) Error() string {
-	return "msgp: error decoding extension: wanted type " + strconv.Itoa(int(e.Want)) + "; got type " + strconv.Itoa(int(e.Got))
+	return fmt.Sprintf("msgp: error decoding extension: wanted type %d; got type %d", e.Want, e.Got)
 }
 
 // Resumable returns 'true' for ExtensionTypeErrors
@@ -121,8 +120,11 @@ func (r *RawExtension) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-func (mw *Writer) writeExtensionHeader(length int, extType int8) error {
-	switch length {
+// WriteExtension writes an extension type to the writer
+func (mw *Writer) WriteExtension(e Extension) error {
+	l := e.Len()
+	var err error
+	switch l {
 	case 0:
 		o, err := mw.require(3)
 		if err != nil {
@@ -130,88 +132,75 @@ func (mw *Writer) writeExtensionHeader(length int, extType int8) error {
 		}
 		mw.buf[o] = mext8
 		mw.buf[o+1] = 0
-		mw.buf[o+2] = byte(extType)
+		mw.buf[o+2] = byte(e.ExtensionType())
 	case 1:
 		o, err := mw.require(2)
 		if err != nil {
 			return err
 		}
 		mw.buf[o] = mfixext1
-		mw.buf[o+1] = byte(extType)
+		mw.buf[o+1] = byte(e.ExtensionType())
 	case 2:
 		o, err := mw.require(2)
 		if err != nil {
 			return err
 		}
 		mw.buf[o] = mfixext2
-		mw.buf[o+1] = byte(extType)
+		mw.buf[o+1] = byte(e.ExtensionType())
 	case 4:
 		o, err := mw.require(2)
 		if err != nil {
 			return err
 		}
 		mw.buf[o] = mfixext4
-		mw.buf[o+1] = byte(extType)
+		mw.buf[o+1] = byte(e.ExtensionType())
 	case 8:
 		o, err := mw.require(2)
 		if err != nil {
 			return err
 		}
 		mw.buf[o] = mfixext8
-		mw.buf[o+1] = byte(extType)
+		mw.buf[o+1] = byte(e.ExtensionType())
 	case 16:
 		o, err := mw.require(2)
 		if err != nil {
 			return err
 		}
 		mw.buf[o] = mfixext16
-		mw.buf[o+1] = byte(extType)
+		mw.buf[o+1] = byte(e.ExtensionType())
 	default:
 		switch {
-		case length < math.MaxUint8:
+		case l < math.MaxUint8:
 			o, err := mw.require(3)
 			if err != nil {
 				return err
 			}
 			mw.buf[o] = mext8
-			mw.buf[o+1] = byte(uint8(length))
-			mw.buf[o+2] = byte(extType)
-		case length < math.MaxUint16:
+			mw.buf[o+1] = byte(uint8(l))
+			mw.buf[o+2] = byte(e.ExtensionType())
+		case l < math.MaxUint16:
 			o, err := mw.require(4)
 			if err != nil {
 				return err
 			}
 			mw.buf[o] = mext16
-			big.PutUint16(mw.buf[o+1:], uint16(length))
-			mw.buf[o+3] = byte(extType)
+			big.PutUint16(mw.buf[o+1:], uint16(l))
+			mw.buf[o+3] = byte(e.ExtensionType())
 		default:
 			o, err := mw.require(6)
 			if err != nil {
 				return err
 			}
 			mw.buf[o] = mext32
-			big.PutUint32(mw.buf[o+1:], uint32(length))
-			mw.buf[o+5] = byte(extType)
+			big.PutUint32(mw.buf[o+1:], uint32(l))
+			mw.buf[o+5] = byte(e.ExtensionType())
 		}
 	}
-
-	return nil
-}
-
-// WriteExtension writes an extension type to the writer
-func (mw *Writer) WriteExtension(e Extension) error {
-	length := e.Len()
-
-	err := mw.writeExtensionHeader(length, e.ExtensionType())
-	if err != nil {
-		return err
-	}
-
 	// we can only write directly to the
 	// buffer if we're sure that it
 	// fits the object
-	if length <= mw.bufsize() {
-		o, err := mw.require(length)
+	if l <= mw.bufsize() {
+		o, err := mw.require(l)
 		if err != nil {
 			return err
 		}
@@ -224,56 +213,42 @@ func (mw *Writer) WriteExtension(e Extension) error {
 	if err != nil {
 		return err
 	}
-	buf := make([]byte, length)
+	buf := make([]byte, l)
 	err = e.MarshalBinaryTo(buf)
 	if err != nil {
 		return err
 	}
 	mw.buf = buf
-	mw.wloc = length
-	return nil
-}
-
-// WriteExtensionRaw writes an extension type to the writer
-func (mw *Writer) WriteExtensionRaw(extType int8, payload []byte) error {
-	if err := mw.writeExtensionHeader(len(payload), extType); err != nil {
-		return err
-	}
-
-	// instead of using mw.Write(), we'll copy the data through the internal
-	// buffer, otherwise the payload would be moved to the heap
-	// (meaning we can use stack-allocated buffers with zero allocations)
-	for len(payload) > 0 {
-		chunkSize := mw.avail()
-		if chunkSize == 0 {
-			if err := mw.flush(); err != nil {
-				return err
-			}
-			chunkSize = mw.avail()
-		}
-		if chunkSize > len(payload) {
-			chunkSize = len(payload)
-		}
-
-		mw.wloc += copy(mw.buf[mw.wloc:], payload[:chunkSize])
-		payload = payload[chunkSize:]
-	}
-
+	mw.wloc = l
 	return nil
 }
 
 // peek at the extension type, assuming the next
 // kind to be read is Extension
 func (m *Reader) peekExtensionType() (int8, error) {
-	_, _, extType, err := m.peekExtensionHeader()
-
-	return extType, err
+	p, err := m.R.Peek(2)
+	if err != nil {
+		return 0, err
+	}
+	spec := sizes[p[0]]
+	if spec.typ != ExtensionType {
+		return 0, badPrefix(ExtensionType, p[0])
+	}
+	if spec.extra == constsize {
+		return int8(p[1]), nil
+	}
+	size := spec.size
+	p, err = m.R.Peek(int(size))
+	if err != nil {
+		return 0, err
+	}
+	return int8(p[size-1]), nil
 }
 
 // peekExtension peeks at the extension encoding type
 // (must guarantee at least 1 byte in 'b')
 func peekExtension(b []byte) (int8, error) {
-	spec := getBytespec(b[0])
+	spec := sizes[b[0]]
 	size := spec.size
 	if spec.typ != ExtensionType {
 		return 0, badPrefix(ExtensionType, b[0])
@@ -292,40 +267,93 @@ func peekExtension(b []byte) (int8, error) {
 	return int8(b[size-1]), nil
 }
 
-func (m *Reader) peekExtensionHeader() (offset int, length int, extType int8, err error) {
+// ReadExtension reads the next object from the reader
+// as an extension. ReadExtension will fail if the next
+// object in the stream is not an extension, or if
+// e.Type() is not the same as the wire type.
+func (m *Reader) ReadExtension(e Extension) (err error) {
 	var p []byte
 	p, err = m.R.Peek(2)
 	if err != nil {
 		return
 	}
-
-	offset = 2
-
 	lead := p[0]
+	var read int
+	var off int
 	switch lead {
 	case mfixext1:
-		extType = int8(p[1])
-		length = 1
+		if int8(p[1]) != e.ExtensionType() {
+			err = errExt(int8(p[1]), e.ExtensionType())
+			return
+		}
+		p, err = m.R.Peek(3)
+		if err != nil {
+			return
+		}
+		err = e.UnmarshalBinary(p[2:])
+		if err == nil {
+			_, err = m.R.Skip(3)
+		}
 		return
 
 	case mfixext2:
-		extType = int8(p[1])
-		length = 2
+		if int8(p[1]) != e.ExtensionType() {
+			err = errExt(int8(p[1]), e.ExtensionType())
+			return
+		}
+		p, err = m.R.Peek(4)
+		if err != nil {
+			return
+		}
+		err = e.UnmarshalBinary(p[2:])
+		if err == nil {
+			_, err = m.R.Skip(4)
+		}
 		return
 
 	case mfixext4:
-		extType = int8(p[1])
-		length = 4
+		if int8(p[1]) != e.ExtensionType() {
+			err = errExt(int8(p[1]), e.ExtensionType())
+			return
+		}
+		p, err = m.R.Peek(6)
+		if err != nil {
+			return
+		}
+		err = e.UnmarshalBinary(p[2:])
+		if err == nil {
+			_, err = m.R.Skip(6)
+		}
 		return
 
 	case mfixext8:
-		extType = int8(p[1])
-		length = 8
+		if int8(p[1]) != e.ExtensionType() {
+			err = errExt(int8(p[1]), e.ExtensionType())
+			return
+		}
+		p, err = m.R.Peek(10)
+		if err != nil {
+			return
+		}
+		err = e.UnmarshalBinary(p[2:])
+		if err == nil {
+			_, err = m.R.Skip(10)
+		}
 		return
 
 	case mfixext16:
-		extType = int8(p[1])
-		length = 16
+		if int8(p[1]) != e.ExtensionType() {
+			err = errExt(int8(p[1]), e.ExtensionType())
+			return
+		}
+		p, err = m.R.Peek(18)
+		if err != nil {
+			return
+		}
+		err = e.UnmarshalBinary(p[2:])
+		if err == nil {
+			_, err = m.R.Skip(18)
+		}
 		return
 
 	case mext8:
@@ -333,77 +361,51 @@ func (m *Reader) peekExtensionHeader() (offset int, length int, extType int8, er
 		if err != nil {
 			return
 		}
-		offset = 3
-		extType = int8(p[2])
-		length = int(uint8(p[1]))
+		if int8(p[2]) != e.ExtensionType() {
+			err = errExt(int8(p[2]), e.ExtensionType())
+			return
+		}
+		read = int(uint8(p[1]))
+		off = 3
 
 	case mext16:
 		p, err = m.R.Peek(4)
 		if err != nil {
 			return
 		}
-		offset = 4
-		extType = int8(p[3])
-		length = int(big.Uint16(p[1:]))
+		if int8(p[3]) != e.ExtensionType() {
+			err = errExt(int8(p[3]), e.ExtensionType())
+			return
+		}
+		read = int(big.Uint16(p[1:]))
+		off = 4
 
 	case mext32:
 		p, err = m.R.Peek(6)
 		if err != nil {
 			return
 		}
-		offset = 6
-		extType = int8(p[5])
-		length = int(big.Uint32(p[1:]))
+		if int8(p[5]) != e.ExtensionType() {
+			err = errExt(int8(p[5]), e.ExtensionType())
+			return
+		}
+		read = int(big.Uint32(p[1:]))
+		off = 6
 
 	default:
 		err = badPrefix(ExtensionType, lead)
 		return
 	}
 
-	return
-}
-
-// ReadExtension reads the next object from the reader
-// as an extension. ReadExtension will fail if the next
-// object in the stream is not an extension, or if
-// e.Type() is not the same as the wire type.
-func (m *Reader) ReadExtension(e Extension) error {
-	offset, length, extType, err := m.peekExtensionHeader()
+	p, err = m.R.Peek(read + off)
 	if err != nil {
-		return err
+		return
 	}
-
-	if expectedType := e.ExtensionType(); extType != expectedType {
-		return errExt(extType, expectedType)
-	}
-
-	p, err := m.R.Peek(offset + length)
-	if err != nil {
-		return err
-	}
-	err = e.UnmarshalBinary(p[offset:])
+	err = e.UnmarshalBinary(p[off:])
 	if err == nil {
-		// consume the peeked bytes
-		_, err = m.R.Skip(offset + length)
+		_, err = m.R.Skip(read + off)
 	}
-	return err
-}
-
-// ReadExtensionRaw reads the next object from the reader
-// as an extension. The returned slice is only
-// valid until the next *Reader method call.
-func (m *Reader) ReadExtensionRaw() (int8, []byte, error) {
-	offset, length, extType, err := m.peekExtensionHeader()
-	if err != nil {
-		return 0, nil, err
-	}
-
-	payload, err := m.R.Next(offset + length)
-	if err != nil {
-		return 0, nil, err
-	}
-
-	return extType, payload[offset:], nil
+	return
 }
 
 // AppendExtension appends a MessagePack extension to the provided slice

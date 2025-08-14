@@ -6,9 +6,11 @@ package internal
 
 import (
 	"errors"
+	"io/ioutil"
 	"os"
 	"os/user"
 	"path/filepath"
+	"runtime"
 	"strconv"
 	"strings"
 )
@@ -22,6 +24,14 @@ func ConfigDir() (string, error) {
 
 	if userConfigDir, err := os.UserConfigDir(); err == nil {
 		return filepath.Join(userConfigDir, "gops"), nil
+	}
+
+	if runtime.GOOS == "windows" {
+		return filepath.Join(os.Getenv("APPDATA"), "gops"), nil
+	}
+
+	if xdgConfigDir := os.Getenv("XDG_CONFIG_HOME"); xdgConfigDir != "" {
+		return filepath.Join(xdgConfigDir, "gops"), nil
 	}
 
 	homeDir := guessUnixHomeDir()
@@ -52,7 +62,7 @@ func GetPort(pid int) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	b, err := os.ReadFile(portfile)
+	b, err := ioutil.ReadFile(portfile)
 	if err != nil {
 		return "", err
 	}

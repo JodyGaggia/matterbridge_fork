@@ -357,7 +357,7 @@ func (eventData MessagesEventData) ToJSON() string {
 
 // MessagesTemplate struct.
 //
-// https://dev.vk.com/ru/api/bots/development/messages
+// https://vk.com/dev/bot_docs_templates
 type MessagesTemplate struct {
 	Type     string                    `json:"type"`
 	Elements []MessagesTemplateElement `json:"elements"`
@@ -404,7 +404,7 @@ type MessageContentSourceURL struct {
 
 // MessageContentSource struct.
 //
-// https://dev.vk.com/ru/api/bots/development/messages
+// https://vk.com/dev/bots_docs_2
 type MessageContentSource struct {
 	Type                        string `json:"type"`
 	MessageContentSourceMessage        // type message
@@ -592,7 +592,8 @@ type MessagesConversationPushSettings struct {
 // MessagesConversationWithMessage struct.
 type MessagesConversationWithMessage struct {
 	Conversation MessagesConversation `json:"conversation"`
-	LastMessage  MessagesMessage      `json:"last_message"`
+	// BUG(VK): https://vk.com/bug229134
+	LastMessage MessagesMessage `json:"last_message"`
 }
 
 // MessagesDialog struct.

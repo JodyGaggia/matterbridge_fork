@@ -7,7 +7,7 @@ import (
 // NewsfeedAddBan prevents news from specified users and communities
 // from appearing in the current user's newsfeed.
 //
-// https://dev.vk.com/method/newsfeed.addBan
+// https://vk.com/dev/newsfeed.addBan
 func (vk *VK) NewsfeedAddBan(params Params) (response int, err error) {
 	err = vk.RequestUnmarshal("newsfeed.addBan", &response, params)
 	return
@@ -16,7 +16,7 @@ func (vk *VK) NewsfeedAddBan(params Params) (response int, err error) {
 // NewsfeedDeleteBan allows news from previously banned users and
 // communities to be shown in the current user's newsfeed.
 //
-// https://dev.vk.com/method/newsfeed.deleteBan
+// https://vk.com/dev/newsfeed.deleteBan
 func (vk *VK) NewsfeedDeleteBan(params Params) (response int, err error) {
 	err = vk.RequestUnmarshal("newsfeed.deleteBan", &response, params)
 	return
@@ -24,7 +24,7 @@ func (vk *VK) NewsfeedDeleteBan(params Params) (response int, err error) {
 
 // NewsfeedDeleteList the method allows you to delete a custom news list.
 //
-// https://dev.vk.com/method/newsfeed.deleteList
+// https://vk.com/dev/newsfeed.deleteList
 func (vk *VK) NewsfeedDeleteList(params Params) (response int, err error) {
 	err = vk.RequestUnmarshal("newsfeed.deleteList", &response, params)
 	return
@@ -39,7 +39,7 @@ type NewsfeedGetResponse struct {
 
 // NewsfeedGet returns data required to show newsfeed for the current user.
 //
-// https://dev.vk.com/method/newsfeed.get
+// https://vk.com/dev/newsfeed.get
 func (vk *VK) NewsfeedGet(params Params) (response NewsfeedGetResponse, err error) {
 	err = vk.RequestUnmarshal("newsfeed.get", &response, params)
 	return
@@ -53,9 +53,9 @@ type NewsfeedGetBannedResponse struct {
 
 // NewsfeedGetBanned returns a list of users and communities banned from the current user's newsfeed.
 //
-//	extended=0
+// 	extended=0
 //
-// https://dev.vk.com/method/newsfeed.getBanned
+// https://vk.com/dev/newsfeed.getBanned
 func (vk *VK) NewsfeedGetBanned(params Params) (response NewsfeedGetBannedResponse, err error) {
 	err = vk.RequestUnmarshal("newsfeed.getBanned", &response, params, Params{"extended": false})
 
@@ -69,9 +69,9 @@ type NewsfeedGetBannedExtendedResponse struct {
 
 // NewsfeedGetBannedExtended returns a list of users and communities banned from the current user's newsfeed.
 //
-//	extended=1
+// 	extended=1
 //
-// https://dev.vk.com/method/newsfeed.getBanned
+// https://vk.com/dev/newsfeed.getBanned
 func (vk *VK) NewsfeedGetBannedExtended(params Params) (response NewsfeedGetBannedExtendedResponse, err error) {
 	err = vk.RequestUnmarshal("newsfeed.getBanned", &response, params, Params{"extended": true})
 
@@ -87,7 +87,7 @@ type NewsfeedGetCommentsResponse struct {
 
 // NewsfeedGetComments returns a list of comments in the current user's newsfeed.
 //
-// https://dev.vk.com/method/newsfeed.getComments
+// https://vk.com/dev/newsfeed.getComments
 func (vk *VK) NewsfeedGetComments(params Params) (response NewsfeedGetCommentsResponse, err error) {
 	err = vk.RequestUnmarshal("newsfeed.getComments", &response, params)
 	return
@@ -106,7 +106,7 @@ type NewsfeedGetListsResponse struct {
 
 // NewsfeedGetLists returns a list of newsfeeds followed by the current user.
 //
-// https://dev.vk.com/method/newsfeed.getLists
+// https://vk.com/dev/newsfeed.getLists
 func (vk *VK) NewsfeedGetLists(params Params) (response NewsfeedGetListsResponse, err error) {
 	err = vk.RequestUnmarshal("newsfeed.getLists", &response, params)
 	return
@@ -120,7 +120,7 @@ type NewsfeedGetMentionsResponse struct {
 
 // NewsfeedGetMentions returns a list of posts on user walls in which the current user is mentioned.
 //
-// https://dev.vk.com/method/newsfeed.getMentions
+// https://vk.com/dev/newsfeed.getMentions
 func (vk *VK) NewsfeedGetMentions(params Params) (response NewsfeedGetMentionsResponse, err error) {
 	err = vk.RequestUnmarshal("newsfeed.getMentions", &response, params)
 	return
@@ -137,7 +137,7 @@ type NewsfeedGetRecommendedResponse struct {
 
 // NewsfeedGetRecommended returns a list of newsfeeds recommended to the current user.
 //
-// https://dev.vk.com/method/newsfeed.getRecommended
+// https://vk.com/dev/newsfeed.getRecommended
 func (vk *VK) NewsfeedGetRecommended(params Params) (response NewsfeedGetRecommendedResponse, err error) {
 	err = vk.RequestUnmarshal("newsfeed.getRecommended", &response, params)
 	return
@@ -151,7 +151,7 @@ type NewsfeedGetSuggestedSourcesResponse struct {
 
 // NewsfeedGetSuggestedSources returns communities and users that current user is suggested to follow.
 //
-// https://dev.vk.com/method/newsfeed.getSuggestedSources
+// https://vk.com/dev/newsfeed.getSuggestedSources
 func (vk *VK) NewsfeedGetSuggestedSources(params Params) (response NewsfeedGetSuggestedSourcesResponse, err error) {
 	err = vk.RequestUnmarshal("newsfeed.getSuggestedSources", &response, params)
 	return
@@ -159,7 +159,7 @@ func (vk *VK) NewsfeedGetSuggestedSources(params Params) (response NewsfeedGetSu
 
 // NewsfeedIgnoreItem hides an item from the newsfeed.
 //
-// https://dev.vk.com/method/newsfeed.ignoreItem
+// https://vk.com/dev/newsfeed.ignoreItem
 func (vk *VK) NewsfeedIgnoreItem(params Params) (response int, err error) {
 	err = vk.RequestUnmarshal("newsfeed.ignoreItem", &response, params)
 	return
@@ -167,7 +167,7 @@ func (vk *VK) NewsfeedIgnoreItem(params Params) (response int, err error) {
 
 // NewsfeedSaveList creates and edits user newsfeed lists.
 //
-// https://dev.vk.com/method/newsfeed.saveList
+// https://vk.com/dev/newsfeed.saveList
 func (vk *VK) NewsfeedSaveList(params Params) (response int, err error) {
 	err = vk.RequestUnmarshal("newsfeed.saveList", &response, params)
 	return
@@ -183,9 +183,9 @@ type NewsfeedSearchResponse struct {
 
 // NewsfeedSearch returns search results by statuses.
 //
-//	extended=0
+// 	extended=0
 //
-// https://dev.vk.com/method/newsfeed.search
+// https://vk.com/dev/newsfeed.search
 func (vk *VK) NewsfeedSearch(params Params) (response NewsfeedSearchResponse, err error) {
 	err = vk.RequestUnmarshal("newsfeed.search", &response, params, Params{"extended": false})
 
@@ -204,9 +204,9 @@ type NewsfeedSearchExtendedResponse struct {
 
 // NewsfeedSearchExtended returns search results by statuses.
 //
-//	extended=1
+// 	extended=1
 //
-// https://dev.vk.com/method/newsfeed.search
+// https://vk.com/dev/newsfeed.search
 func (vk *VK) NewsfeedSearchExtended(params Params) (response NewsfeedSearchExtendedResponse, err error) {
 	err = vk.RequestUnmarshal("newsfeed.search", &response, params, Params{"extended": true})
 
@@ -215,7 +215,7 @@ func (vk *VK) NewsfeedSearchExtended(params Params) (response NewsfeedSearchExte
 
 // NewsfeedUnignoreItem returns a hidden item to the newsfeed.
 //
-// https://dev.vk.com/method/newsfeed.unignoreItem
+// https://vk.com/dev/newsfeed.unignoreItem
 func (vk *VK) NewsfeedUnignoreItem(params Params) (response int, err error) {
 	err = vk.RequestUnmarshal("newsfeed.unignoreItem", &response, params)
 	return
@@ -223,7 +223,7 @@ func (vk *VK) NewsfeedUnignoreItem(params Params) (response int, err error) {
 
 // NewsfeedUnsubscribe unsubscribes the current user from specified newsfeeds.
 //
-// https://dev.vk.com/method/newsfeed.unsubscribe
+// https://vk.com/dev/newsfeed.unsubscribe
 func (vk *VK) NewsfeedUnsubscribe(params Params) (response int, err error) {
 	err = vk.RequestUnmarshal("newsfeed.unsubscribe", &response, params)
 	return

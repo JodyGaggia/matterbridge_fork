@@ -81,6 +81,17 @@ func (b *Bdiscord) Connect() error {
 		return err
 	}
 	b.Log.Info("Connection succeeded")
+	b.c.AddHandler(b.messageCreate)
+	b.c.AddHandler(b.messageTyping)
+	b.c.AddHandler(b.messageUpdate)
+	b.c.AddHandler(b.messageDelete)
+	b.c.AddHandler(b.messageDeleteBulk)
+	b.c.AddHandler(b.memberAdd)
+	b.c.AddHandler(b.memberRemove)
+	b.c.AddHandler(b.memberUpdate)
+	if b.GetInt("debuglevel") == 1 {
+		b.c.AddHandler(b.messageEvent)
+	}
 	// Add privileged intent for guild member tracking. This is needed to track nicks
 	// for display names and @mention translation
 	b.c.Identify.Intents = discordgo.MakeIntent(discordgo.IntentsAllWithoutPrivileged |
@@ -90,7 +101,7 @@ func (b *Bdiscord) Connect() error {
 	if err != nil {
 		return err
 	}
-	guilds, err := b.c.UserGuilds(100, "", "", false)
+	guilds, err := b.c.UserGuilds(100, "", "")
 	if err != nil {
 		return err
 	}
@@ -222,19 +233,6 @@ func (b *Bdiscord) Connect() error {
 			b.nickMemberMap[member.Nick] = member
 		}
 	}
-
-	b.c.AddHandler(b.messageCreate)
-	b.c.AddHandler(b.messageTyping)
-	b.c.AddHandler(b.messageUpdate)
-	b.c.AddHandler(b.messageDelete)
-	b.c.AddHandler(b.messageDeleteBulk)
-	b.c.AddHandler(b.memberAdd)
-	b.c.AddHandler(b.memberRemove)
-	b.c.AddHandler(b.memberUpdate)
-	if b.GetInt("debuglevel") == 1 {
-		b.c.AddHandler(b.messageEvent)
-	}
-
 	return nil
 }
 
@@ -316,7 +314,6 @@ func (b *Bdiscord) handleEventBotUser(msg *config.Message, channelID string) (st
 	// Upload a file if it exists
 	if msg.Extra != nil {
 		for _, rmsg := range helper.HandleExtra(msg, b.General) {
-			// TODO: Use ClipOrSplitMessage
 			rmsg.Text = helper.ClipMessage(rmsg.Text, MessageLength, b.GetString("MessageClipped"))
 			if _, err := b.c.ChannelMessageSend(channelID, rmsg.Username+rmsg.Text); err != nil {
 				b.Log.Errorf("Could not send message %#v: %s", rmsg, err)
@@ -328,53 +325,35 @@ func (b *Bdiscord) handleEventBotUser(msg *config.Message, channelID string) (st
 		}
 	}
 
+	msg.Text = helper.ClipMessage(msg.Text, MessageLength, b.GetString("MessageClipped"))
+	msg.Text = b.replaceUserMentions(msg.Text)
+
 	// Edit message
 	if msg.ID != "" {
-		// Exploit that a discord message ID is actually just a large number, and we encode a list of IDs by separating them with ";".
-		msgIds := strings.Split(msg.ID, ";")
-		msgParts := helper.ClipOrSplitMessage(b.replaceUserMentions(msg.Text), MessageLength, b.GetString("MessageClipped"), len(msgIds))
-		for len(msgParts) < len(msgIds) {
-			msgParts = append(msgParts, "((obsoleted by edit))")
-		}
-		for i := range msgParts {
-			// In case of split-messages where some parts remain the same (i.e. only a typo-fix in a huge message), this causes some noop-updates.
-			// TODO: Optimize away noop-updates of un-edited messages
-			// TODO: Use RemoteNickFormat instead of this broken concatenation
-			_, err := b.c.ChannelMessageEdit(channelID, msgIds[i], msg.Username+msgParts[i])
-			if err != nil {
-				return "", err
-			}
-		}
-		return msg.ID, nil
+		_, err := b.c.ChannelMessageEdit(channelID, msg.ID, msg.Username+msg.Text)
+		return msg.ID, err
 	}
 
-	msgParts := helper.ClipOrSplitMessage(b.replaceUserMentions(msg.Text), MessageLength, b.GetString("MessageClipped"), b.GetInt("MessageSplitMaxCount"))
-	msgIds := []string{}
-
-	for _, msgPart := range msgParts {
-		m := discordgo.MessageSend{
-			Content:         msg.Username + msgPart,
-			AllowedMentions: b.getAllowedMentions(),
-		}
-
-		if msg.ParentValid() {
-			m.Reference = &discordgo.MessageReference{
-				MessageID: msg.ParentID,
-				ChannelID: channelID,
-				GuildID:   b.guildID,
-			}
-		}
-
-		// Post normal message
-		res, err := b.c.ChannelMessageSendComplex(channelID, &m)
-		if err != nil {
-			return "", err
-		}
-		msgIds = append(msgIds, res.ID)
+	m := discordgo.MessageSend{
+		Content:         msg.Username + msg.Text,
+		AllowedMentions: b.getAllowedMentions(),
 	}
 
-	// Exploit that a discord message ID is actually just a large number, so we encode a list of IDs by separating them with ";".
-	return strings.Join(msgIds, ";"), nil
+	if msg.ParentValid() {
+		m.Reference = &discordgo.MessageReference{
+			MessageID: msg.ParentID,
+			ChannelID: channelID,
+			GuildID:   b.guildID,
+		}
+	}
+
+	// Post normal message
+	res, err := b.c.ChannelMessageSendComplex(channelID, &m)
+	if err != nil {
+		return "", err
+	}
+
+	return res.ID, nil
 }
 
 // handleUploadFile handles native upload of files

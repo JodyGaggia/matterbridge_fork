@@ -4,7 +4,6 @@ import (
 	"errors"
 
 	ber "github.com/go-asn1-ber/asn1-ber"
-	"github.com/mattermost/mattermost/server/public/shared/mlog"
 )
 
 var (
@@ -29,31 +28,26 @@ func (l *Conn) doRequest(req request) (*messageContext, error) {
 		return nil, err
 	}
 
-	l.Debug.Log("Sending package", PacketToField(packet))
+	if l.Debug {
+		l.Debug.PrintPacket(packet)
+	}
 
 	msgCtx, err := l.sendMessage(packet)
 	if err != nil {
 		return nil, err
 	}
-
-	l.Debug.Log("Send package", mlog.Int("id", msgCtx.id))
+	l.Debug.Printf("%d: returning", msgCtx.id)
 	return msgCtx, nil
 }
 
 func (l *Conn) readPacket(msgCtx *messageContext) (*ber.Packet, error) {
-	l.Debug.Log("Waiting for response", mlog.Int("id", msgCtx.id))
+	l.Debug.Printf("%d: waiting for response", msgCtx.id)
 	packetResponse, ok := <-msgCtx.responses
 	if !ok {
 		return nil, NewError(ErrorNetwork, errRespChanClosed)
 	}
 	packet, err := packetResponse.ReadPacket()
-	if l.Debug.Enabled() {
-		if err := addLDAPDescriptions(packet); err != nil {
-			return nil, err
-		}
-		l.Debug.Log("Got response", mlog.Int("id", msgCtx.id), PacketToField(packet), mlog.Err(err))
-	}
-
+	l.Debug.Printf("%d: got response %p", msgCtx.id, packet)
 	if err != nil {
 		return nil, err
 	}
@@ -62,5 +56,11 @@ func (l *Conn) readPacket(msgCtx *messageContext) (*ber.Packet, error) {
 		return nil, NewError(ErrorNetwork, errCouldNotRetMsg)
 	}
 
+	if l.Debug {
+		if err = addLDAPDescriptions(packet); err != nil {
+			return nil, err
+		}
+		l.Debug.PrintPacket(packet)
+	}
 	return packet, nil
 }

@@ -1,9 +1,6 @@
 package merror
 
-import (
-	"errors"
-	"sync"
-)
+import "sync"
 
 // MError represents zero or more errors that can be
 // accumulated via the `Append` method.
@@ -37,20 +34,18 @@ func NewWithCap(cap int) *MError {
 }
 
 // Append adds an error to the aggregated error list.
-func (me *MError) Append(errs ...error) {
-	if len(errs) == 0 {
+func (me *MError) Append(err error) {
+	if err == nil {
 		return
 	}
 
 	me.mux.Lock()
 	defer me.mux.Unlock()
 
-	for _, err := range errs {
-		if me.cap > 0 && len(me.errors) >= me.cap {
-			me.overflow++
-		} else {
-			me.errors = append(me.errors, err)
-		}
+	if me.cap > 0 && len(me.errors) >= me.cap {
+		me.overflow++
+	} else {
+		me.errors = append(me.errors, err)
 	}
 }
 
@@ -122,30 +117,4 @@ func (me *MError) Error() string {
 		f = GlobalFormatter
 	}
 	return f(me)
-}
-
-func (me *MError) Is(target error) bool {
-	me.mux.RLock()
-	defer me.mux.RUnlock()
-
-	for _, err := range me.errors {
-		if errors.Is(err, target) {
-			return true
-		}
-	}
-
-	return false
-}
-
-func (me *MError) As(target interface{}) bool {
-	me.mux.RLock()
-	defer me.mux.RUnlock()
-
-	for _, err := range me.errors {
-		if errors.As(err, target) {
-			return true
-		}
-	}
-
-	return false
 }

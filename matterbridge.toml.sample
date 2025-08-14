@@ -163,7 +163,7 @@ IgnoreMessages="^~~ badword"
 ReplaceMessages=[ ["cat","dog"] ]
 
 #nicks you want to replace.
-#see replacemessages for syntax
+#see replacemessages for syntaxa
 #optional (default empty)
 ReplaceNicks=[ ["user--","user"] ]
 
@@ -301,7 +301,7 @@ IgnoreMessages="^~~ badword"
 ReplaceMessages=[ ["cat","dog"] ]
 
 #Nicks you want to replace.
-#See ReplaceMessages for syntax
+#See ReplaceMessages for syntaxA
 #OPTIONAL (default empty)
 ReplaceNicks=[ ["user--","user"] ]
 
@@ -468,7 +468,7 @@ IgnoreMessages="^~~ badword"
 ReplaceMessages=[ ["cat","dog"] ]
 
 #nicks you want to replace.
-#see replacemessages for syntax
+#see replacemessages for syntaxa
 #optional (default empty)
 ReplaceNicks=[ ["user--","user"] ]
 
@@ -513,8 +513,85 @@ ShowTopicChange=false
 
 ###################################################################
 #Gitter section
-#Gitter has been moved to matrix - see https://github.com/42wim/matterbridge/issues/1969 how to migrate
+#Best to make a dedicated gitter account for the bot.
 ###################################################################
+
+[gitter]
+
+#You can configure multiple servers "[gitter.name]" or "[gitter.name2]"
+#In this example we use [gitter.myproject]
+#REQUIRED
+[gitter.myproject]
+#Token to connect with Gitter API
+#You can get your token by going to https://developer.gitter.im/docs/welcome and SIGN IN
+#REQUIRED
+Token="Yourtokenhere"
+
+## RELOADABLE SETTINGS
+## Settings below can be reloaded by editing the file
+
+#Nicks you want to ignore.
+#Regular expressions supported
+#Messages from those users will not be sent to other bridges.
+#OPTIONAL
+IgnoreNicks="ircspammer1 ircspammer2"
+
+#Messages you want to ignore.
+#Messages matching these regexp will be ignored and not sent to other bridges
+#See https://regex-golang.appspot.com/assets/html/index.html for more regex info
+#OPTIONAL (example below ignores messages starting with ~~ or messages containing badword
+IgnoreMessages="^~~ badword"
+
+#messages you want to replace.
+#it replaces outgoing messages from the bridge.
+#so you need to place it by the sending bridge definition.
+#regular expressions supported
+#some examples:
+#this replaces cat => dog and sleep => awake
+#replacemessages=[ ["cat","dog"], ["sleep","awake"] ]
+#this replaces every number with number.  123 => numbernumbernumber
+#replacemessages=[ ["[0-9]","number"] ]
+#optional (default empty)
+ReplaceMessages=[ ["cat","dog"] ]
+
+#nicks you want to replace.
+#see replacemessages for syntaxa
+#optional (default empty)
+ReplaceNicks=[ ["user--","user"] ]
+
+#Extractnicks is used to for example rewrite messages from other relaybots
+#See https://github.com/42wim/matterbridge/issues/713 and https://github.com/42wim/matterbridge/issues/466
+#some examples:
+#this replaces a message like "Relaybot: <relayeduser> something interesting" to "relayeduser: something interesting"
+#ExtractNicks=[ [ "Relaybot", "<(.*?)>\\s+" ] ]
+#you can use multiple entries for multiplebots
+#this also replaces a message like "otherbot: (relayeduser) something else" to "relayeduser: something else"
+#ExtractNicks=[ [ "Relaybot", "<(.*?)>\\s+" ],[ "otherbot","\\((.*?)\\)\\s+" ]
+#OPTIONAL (default empty)
+ExtractNicks=[ ["otherbot","<(.*?)>\\s+" ] ]
+
+#extra label that can be used in the RemoteNickFormat
+#optional (default empty)
+Label=""
+
+#RemoteNickFormat defines how remote users appear on this bridge
+#See [general] config section for default options
+RemoteNickFormat="[{PROTOCOL}] <{NICK}> "
+
+#Enable to show users joins/parts from other bridges
+#Currently works for messages from the following bridges: irc, mattermost, mumble, slack, discord
+#OPTIONAL (default false)
+ShowJoinPart=false
+
+#StripNick only allows alphanumerical nicks. See https://github.com/42wim/matterbridge/issues/285
+#It will strip other characters from the nick
+#OPTIONAL (default false)
+StripNick=false
+
+#Enable to show topic changes from other bridges
+#Only works hiding/show topic changes from slack bridge for now
+#OPTIONAL (default false)
+ShowTopicChange=false
 
 ###################################################################
 #
@@ -586,7 +663,7 @@ IgnoreMessages="^~~ badword"
 ReplaceMessages=[ ["cat","dog"] ]
 
 #nicks you want to replace.
-#see replacemessages for syntax
+#see replacemessages for syntaxa
 #optional (default empty)
 ReplaceNicks=[ ["user--","user"] ]
 
@@ -725,7 +802,7 @@ IgnoreMessages="^~~ badword"
 ReplaceMessages=[ ["cat","dog"] ]
 
 #nicks you want to replace.
-#see replacemessages for syntax
+#see replacemessages for syntaxa
 #optional (default empty)
 ReplaceNicks=[ ["user--","user"] ]
 
@@ -925,16 +1002,9 @@ ShowTopicChange=false
 # Supported from the following bridges: slack
 SyncTopic=false
 
-# Message to show when a message is too big
-# Default "<clipped message>"
+#Message to show when a message is too big
+#Default "<clipped message>"
 MessageClipped="<clipped message>"
-
-# Before clipping, try to split messages into at most this many parts. 0 is treated like 1.
-# Be careful with large numbers, as this might cause flooding.
-# Example: A maximum telegram message of 4096 bytes is received. This requires 3 Discord
-# messages (each capped at a hardcoded 1950 bytes).
-# Default 1
-MessageSplitMaxCount=3
 
 ###################################################################
 #telegram section
@@ -1040,7 +1110,7 @@ IgnoreMessages="^~~ badword"
 ReplaceMessages=[ ["cat","dog"] ]
 
 #nicks you want to replace.
-#see replacemessages for syntax
+#see replacemessages for syntaxa
 #optional (default empty)
 ReplaceNicks=[ ["user--","user"] ]
 
@@ -1181,7 +1251,7 @@ IgnoreMessages="^~~ badword"
 ReplaceMessages=[ ["cat","dog"] ]
 
 #nicks you want to replace.
-#see replacemessages for syntax
+#see replacemessages for syntaxa
 #optional (default empty)
 ReplaceNicks=[ ["user--","user"] ]
 
@@ -1293,7 +1363,7 @@ IgnoreMessages="^~~ badword"
 ReplaceMessages=[ ["cat","dog"] ]
 
 #nicks you want to replace.
-#see replacemessages for syntax
+#see replacemessages for syntaxa
 #optional (default empty)
 ReplaceNicks=[ ["user--","user"] ]
 
@@ -1390,7 +1460,7 @@ IgnoreMessages="^~~ badword"
 ReplaceMessages=[ ["cat","dog"] ]
 
 #nicks you want to replace.
-#see replacemessages for syntax
+#see replacemessages for syntaxa
 #optional (default empty)
 ReplaceNicks=[ ["user--","user"] ]
 
@@ -1599,7 +1669,7 @@ IgnoreMessages="^~~ badword"
 ReplaceMessages=[ ["cat","dog"] ]
 
 #nicks you want to replace.
-#see replacemessages for syntax
+#see replacemessages for syntaxa
 #optional (default empty)
 ReplaceNicks=[ ["user--","user"] ]
 
@@ -1886,7 +1956,6 @@ enable=true
     #   nctalk   |      token         |           xs25tz5y            | The token in the URL when you are in a chat. It will be the last part of the URL.
     # -------------------------------------------------------------------------------------------------------------------------------------
     #  telegram  |      chatid        |          -123456789           | A large negative number. see https://www.linkedin.com/pulse/telegram-bots-beginners-marco-frau
-    #            |   chatid/topicid   |          -123456789/12        | A large negative number/number.
     # -------------------------------------------------------------------------------------------------------------------------------------
     #  vk        |      peerid        |          2000000002           | A number that starts form 2000000000. Use --debug and send any message in chat to get PeerID in the logs
     # -------------------------------------------------------------------------------------------------------------------------------------

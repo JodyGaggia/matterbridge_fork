@@ -1,6 +1,3 @@
-// SPDX-License-Identifier: MIT
-// SPDX-FileCopyrightText: © 2015 LabStack LLC and Echo contributors
-
 package echo
 
 import (
@@ -67,7 +64,7 @@ XFF:  "x"                   "x, a"                  "x, a, b"
 ```
 
 In this case, use **first _untrustable_ IP reading from right**. Never use first one reading from left, as it is
-configurable by client. Here "trustable" means "you are sure the IP address belongs to your infrastructure".
+configurable by client. Here "trustable" means "you are sure the IP address belongs to your infrastructre".
 In above example, if `b` and `c` are trustable, the IP address of the client is `a` for both cases, never be `x`.
 
 In Echo, use `ExtractIPFromXFFHeader(...TrustOption)`.
@@ -228,21 +225,15 @@ func extractIP(req *http.Request) string {
 func ExtractIPFromRealIPHeader(options ...TrustOption) IPExtractor {
 	checker := newIPChecker(options)
 	return func(req *http.Request) string {
-		directIP := extractIP(req)
 		realIP := req.Header.Get(HeaderXRealIP)
-		if realIP == "" {
-			return directIP
-		}
-
-		if checker.trust(net.ParseIP(directIP)) {
+		if realIP != "" {
 			realIP = strings.TrimPrefix(realIP, "[")
 			realIP = strings.TrimSuffix(realIP, "]")
-			if rIP := net.ParseIP(realIP); rIP != nil {
+			if ip := net.ParseIP(realIP); ip != nil && checker.trust(ip) {
 				return realIP
 			}
 		}
-
-		return directIP
+		return extractIP(req)
 	}
 }
 

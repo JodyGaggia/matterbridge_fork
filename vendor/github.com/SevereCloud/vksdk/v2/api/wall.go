@@ -6,7 +6,7 @@ import (
 
 // WallCheckCopyrightLink method.
 //
-// https://dev.vk.com/method/wall.checkCopyrightLink
+// https://vk.com/dev/wall.checkCopyrightLink
 func (vk *VK) WallCheckCopyrightLink(params Params) (response int, err error) {
 	err = vk.RequestUnmarshal("wall.checkCopyrightLink", &response, params)
 	return
@@ -14,7 +14,7 @@ func (vk *VK) WallCheckCopyrightLink(params Params) (response int, err error) {
 
 // WallCloseComments turn off post commenting.
 //
-// https://dev.vk.com/method/wall.closeComments
+// https://vk.com/dev/wall.closeComments
 func (vk *VK) WallCloseComments(params Params) (response int, err error) {
 	err = vk.RequestUnmarshal("wall.closeComments", &response, params)
 	return
@@ -28,7 +28,7 @@ type WallCreateCommentResponse struct {
 
 // WallCreateComment adds a comment to a post on a user wall or community wall.
 //
-// https://dev.vk.com/method/wall.createComment
+// https://vk.com/dev/wall.createComment
 func (vk *VK) WallCreateComment(params Params) (response WallCreateCommentResponse, err error) {
 	err = vk.RequestUnmarshal("wall.createComment", &response, params)
 	return
@@ -36,7 +36,7 @@ func (vk *VK) WallCreateComment(params Params) (response WallCreateCommentRespon
 
 // WallDelete deletes a post from a user wall or community wall.
 //
-// https://dev.vk.com/method/wall.delete
+// https://vk.com/dev/wall.delete
 func (vk *VK) WallDelete(params Params) (response int, err error) {
 	err = vk.RequestUnmarshal("wall.delete", &response, params)
 	return
@@ -44,7 +44,7 @@ func (vk *VK) WallDelete(params Params) (response int, err error) {
 
 // WallDeleteComment deletes a comment on a post on a user wall or community wall.
 //
-// https://dev.vk.com/method/wall.deleteComment
+// https://vk.com/dev/wall.deleteComment
 func (vk *VK) WallDeleteComment(params Params) (response int, err error) {
 	err = vk.RequestUnmarshal("wall.deleteComment", &response, params)
 	return
@@ -57,7 +57,7 @@ type WallEditResponse struct {
 
 // WallEdit edits a post on a user wall or community wall.
 //
-// https://dev.vk.com/method/wall.edit
+// https://vk.com/dev/wall.edit
 func (vk *VK) WallEdit(params Params) (response WallEditResponse, err error) {
 	err = vk.RequestUnmarshal("wall.edit", &response, params)
 	return
@@ -65,7 +65,7 @@ func (vk *VK) WallEdit(params Params) (response WallEditResponse, err error) {
 
 // WallEditAdsStealth allows to edit hidden post.
 //
-// https://dev.vk.com/method/wall.editAdsStealth
+// https://vk.com/dev/wall.editAdsStealth
 func (vk *VK) WallEditAdsStealth(params Params) (response int, err error) {
 	err = vk.RequestUnmarshal("wall.editAdsStealth", &response, params)
 	return
@@ -73,7 +73,7 @@ func (vk *VK) WallEditAdsStealth(params Params) (response int, err error) {
 
 // WallEditComment edits a comment on a user wall or community wall.
 //
-// https://dev.vk.com/method/wall.editComment
+// https://vk.com/dev/wall.editComment
 func (vk *VK) WallEditComment(params Params) (response int, err error) {
 	err = vk.RequestUnmarshal("wall.editComment", &response, params)
 	return
@@ -87,9 +87,9 @@ type WallGetResponse struct {
 
 // WallGet returns a list of posts on a user wall or community wall.
 //
-//	extended=0
+// 	extended=0
 //
-// https://dev.vk.com/method/wall.get
+// https://vk.com/dev/wall.get
 func (vk *VK) WallGet(params Params) (response WallGetResponse, err error) {
 	err = vk.RequestUnmarshal("wall.get", &response, params, Params{"extended": false})
 
@@ -105,9 +105,9 @@ type WallGetExtendedResponse struct {
 
 // WallGetExtended returns a list of posts on a user wall or community wall.
 //
-//	extended=1
+// 	extended=1
 //
-// https://dev.vk.com/method/wall.get
+// https://vk.com/dev/wall.get
 func (vk *VK) WallGetExtended(params Params) (response WallGetExtendedResponse, err error) {
 	err = vk.RequestUnmarshal("wall.get", &response, params, Params{"extended": true})
 
@@ -119,9 +119,9 @@ type WallGetByIDResponse []object.WallWallpost
 
 // WallGetByID returns a list of posts from user or community walls by their IDs.
 //
-//	extended=0
+// 	extended=0
 //
-// https://dev.vk.com/method/wall.getById
+// https://vk.com/dev/wall.getById
 func (vk *VK) WallGetByID(params Params) (response WallGetByIDResponse, err error) {
 	err = vk.RequestUnmarshal("wall.getById", &response, params, Params{"extended": false})
 
@@ -136,9 +136,9 @@ type WallGetByIDExtendedResponse struct {
 
 // WallGetByIDExtended returns a list of posts from user or community walls by their IDs.
 //
-//	extended=1
+// 	extended=1
 //
-// https://dev.vk.com/method/wall.getById
+// https://vk.com/dev/wall.getById
 func (vk *VK) WallGetByIDExtended(params Params) (response WallGetByIDExtendedResponse, err error) {
 	err = vk.RequestUnmarshal("wall.getById", &response, params, Params{"extended": true})
 
@@ -156,9 +156,9 @@ type WallGetCommentResponse struct {
 
 // WallGetComment allows to obtain wall comment info.
 //
-//	extended=0
+// 	extended=0
 //
-// https://dev.vk.com/method/wall.getComment
+// https://vk.com/dev/wall.getComment
 func (vk *VK) WallGetComment(params Params) (response WallGetCommentResponse, err error) {
 	err = vk.RequestUnmarshal("wall.getComment", &response, params, Params{"extended": false})
 
@@ -179,9 +179,9 @@ type WallGetCommentExtendedResponse struct {
 
 // WallGetCommentExtended allows to obtain wall comment info.
 //
-//	extended=1
+// 	extended=1
 //
-// https://dev.vk.com/method/wall.getComment
+// https://vk.com/dev/wall.getComment
 func (vk *VK) WallGetCommentExtended(params Params) (response WallGetCommentExtendedResponse, err error) {
 	err = vk.RequestUnmarshal("wall.getComment", &response, params, Params{"extended": true})
 
@@ -200,9 +200,9 @@ type WallGetCommentsResponse struct {
 
 // WallGetComments returns a list of comments on a post on a user wall or community wall.
 //
-//	extended=0
+// 	extended=0
 //
-// https://dev.vk.com/method/wall.getComments
+// https://vk.com/dev/wall.getComments
 func (vk *VK) WallGetComments(params Params) (response WallGetCommentsResponse, err error) {
 	err = vk.RequestUnmarshal("wall.getComments", &response, params, Params{"extended": false})
 
@@ -222,9 +222,9 @@ type WallGetCommentsExtendedResponse struct {
 
 // WallGetCommentsExtended returns a list of comments on a post on a user wall or community wall.
 //
-//	extended=1
+// 	extended=1
 //
-// https://dev.vk.com/method/wall.getComments
+// https://vk.com/dev/wall.getComments
 func (vk *VK) WallGetCommentsExtended(params Params) (response WallGetCommentsExtendedResponse, err error) {
 	err = vk.RequestUnmarshal("wall.getComments", &response, params, Params{"extended": true})
 
@@ -239,7 +239,7 @@ type WallGetRepostsResponse struct {
 
 // WallGetReposts returns information about reposts of a post on user wall or community wall.
 //
-// https://dev.vk.com/method/wall.getReposts
+// https://vk.com/dev/wall.getReposts
 func (vk *VK) WallGetReposts(params Params) (response WallGetRepostsResponse, err error) {
 	err = vk.RequestUnmarshal("wall.getReposts", &response, params)
 	return
@@ -247,7 +247,7 @@ func (vk *VK) WallGetReposts(params Params) (response WallGetRepostsResponse, er
 
 // WallOpenComments includes posting comments.
 //
-// https://dev.vk.com/method/wall.openComments
+// https://vk.com/dev/wall.openComments
 func (vk *VK) WallOpenComments(params Params) (response int, err error) {
 	err = vk.RequestUnmarshal("wall.openComments", &response, params)
 	return
@@ -255,7 +255,7 @@ func (vk *VK) WallOpenComments(params Params) (response int, err error) {
 
 // WallPin pins the post on wall.
 //
-// https://dev.vk.com/method/wall.pin
+// https://vk.com/dev/wall.pin
 func (vk *VK) WallPin(params Params) (response int, err error) {
 	err = vk.RequestUnmarshal("wall.pin", &response, params)
 	return
@@ -268,7 +268,7 @@ type WallPostResponse struct {
 
 // WallPost adds a new post on a user wall or community wall.Can also be used to publish suggested or scheduled posts.
 //
-// https://dev.vk.com/method/wall.post
+// https://vk.com/dev/wall.post
 func (vk *VK) WallPost(params Params) (response WallPostResponse, err error) {
 	err = vk.RequestUnmarshal("wall.post", &response, params)
 	return
@@ -283,7 +283,7 @@ type WallPostAdsStealthResponse struct {
 // not be shown on the community's wall and can be used for creating
 // an ad with type "Community post".
 //
-// https://dev.vk.com/method/wall.postAdsStealth
+// https://vk.com/dev/wall.postAdsStealth
 func (vk *VK) WallPostAdsStealth(params Params) (response WallPostAdsStealthResponse, err error) {
 	err = vk.RequestUnmarshal("wall.postAdsStealth", &response, params)
 	return
@@ -291,7 +291,7 @@ func (vk *VK) WallPostAdsStealth(params Params) (response WallPostAdsStealthResp
 
 // WallReportComment reports (submits a complaint about) a comment on a post on a user wall or community wall.
 //
-// https://dev.vk.com/method/wall.reportComment
+// https://vk.com/dev/wall.reportComment
 func (vk *VK) WallReportComment(params Params) (response int, err error) {
 	err = vk.RequestUnmarshal("wall.reportComment", &response, params)
 	return
@@ -299,7 +299,7 @@ func (vk *VK) WallReportComment(params Params) (response int, err error) {
 
 // WallReportPost reports (submits a complaint about) a post on a user wall or community wall.
 //
-// https://dev.vk.com/method/wall.reportPost
+// https://vk.com/dev/wall.reportPost
 func (vk *VK) WallReportPost(params Params) (response int, err error) {
 	err = vk.RequestUnmarshal("wall.reportPost", &response, params)
 	return
@@ -317,7 +317,7 @@ type WallRepostResponse struct {
 
 // WallRepost reposts ( copies) an object to a user wall or community wall.
 //
-// https://dev.vk.com/method/wall.repost
+// https://vk.com/dev/wall.repost
 func (vk *VK) WallRepost(params Params) (response WallRepostResponse, err error) {
 	err = vk.RequestUnmarshal("wall.repost", &response, params)
 	return
@@ -325,7 +325,7 @@ func (vk *VK) WallRepost(params Params) (response WallRepostResponse, err error)
 
 // WallRestore restores a post deleted from a user wall or community wall.
 //
-// https://dev.vk.com/method/wall.restore
+// https://vk.com/dev/wall.restore
 func (vk *VK) WallRestore(params Params) (response int, err error) {
 	err = vk.RequestUnmarshal("wall.restore", &response, params)
 	return
@@ -333,7 +333,7 @@ func (vk *VK) WallRestore(params Params) (response int, err error) {
 
 // WallRestoreComment restores a comment deleted from a user wall or community wall.
 //
-// https://dev.vk.com/method/wall.restoreComment
+// https://vk.com/dev/wall.restoreComment
 func (vk *VK) WallRestoreComment(params Params) (response int, err error) {
 	err = vk.RequestUnmarshal("wall.restoreComment", &response, params)
 	return
@@ -347,9 +347,9 @@ type WallSearchResponse struct {
 
 // WallSearch allows to search posts on user or community walls.
 //
-//	extended=0
+// 	extended=0
 //
-// https://dev.vk.com/method/wall.search
+// https://vk.com/dev/wall.search
 func (vk *VK) WallSearch(params Params) (response WallSearchResponse, err error) {
 	err = vk.RequestUnmarshal("wall.search", &response, params, Params{"extended": false})
 
@@ -365,9 +365,9 @@ type WallSearchExtendedResponse struct {
 
 // WallSearchExtended allows to search posts on user or community walls.
 //
-//	extended=1
+// 	extended=1
 //
-// https://dev.vk.com/method/wall.search
+// https://vk.com/dev/wall.search
 func (vk *VK) WallSearchExtended(params Params) (response WallSearchExtendedResponse, err error) {
 	err = vk.RequestUnmarshal("wall.search", &response, params, Params{"extended": true})
 
@@ -376,7 +376,7 @@ func (vk *VK) WallSearchExtended(params Params) (response WallSearchExtendedResp
 
 // WallUnpin unpins the post on wall.
 //
-// https://dev.vk.com/method/wall.unpin
+// https://vk.com/dev/wall.unpin
 func (vk *VK) WallUnpin(params Params) (response int, err error) {
 	err = vk.RequestUnmarshal("wall.unpin", &response, params)
 	return

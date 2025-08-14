@@ -114,21 +114,18 @@ And more...
 
 ### 3rd party via matterbridge api
 
-- [Delta Chat](https://github.com/deltachat-bot/matterdelta)
-- [Minecraft](https://github.com/raws/mattercraft)
-- [Minecraft](https://gitlab.com/Programie/MatterBukkit)
-
-#### Past 3rd party projects
 - [Discourse](https://github.com/DeclanHoare/matterbabble)
 - [Facebook messenger](https://github.com/powerjungle/fbridge-asyncio)
 - [Facebook messenger](https://github.com/VictorNine/fbridge)
 - [Minecraft](https://github.com/elytra/MatterLink)
+- [Minecraft](https://github.com/raws/mattercraft)
+- [Minecraft](https://gitlab.com/Programie/MatterBukkit)
 - [Reddit](https://github.com/bonehurtingjuice/mattereddit)
-- [MatterAMXX](https://github.com/andrewlindberg/MatterAMXX): [Counter-Strike, half-life and more](https://forums.alliedmods.net/showthread.php?t=319430)
+- [Counter-Strike, half-life and more](https://forums.alliedmods.net/showthread.php?t=319430)
+- [MatterAMXX](https://github.com/GabeIggy/MatterAMXX)
 - [Vintage Story](https://github.com/NikkyAI/vs-matterbridge)
 - [Ultima Online Emulator](https://github.com/kuoushi/ServUO-Matterbridge)
 - [Teamspeak](https://github.com/Archeb/ts-matterbridge)
-
 
 ### API
 
@@ -403,6 +400,7 @@ Matterbridge wouldn't exist without these libraries:
 
 - discord - <https://github.com/bwmarrin/discordgo>
 - echo - <https://github.com/labstack/echo>
+- gitter - <https://github.com/sromku/go-gitter>
 - gops - <https://github.com/google/gops>
 - gozulipbot - <https://github.com/ifo/gozulipbot>
 - gumble - <https://github.com/layeh/gumble>

@@ -17,7 +17,7 @@ import (
 	lru "github.com/hashicorp/golang-lru"
 	"github.com/jpillora/backoff"
 	prefixed "github.com/matterbridge/logrus-prefixed-formatter"
-	"github.com/mattermost/mattermost/server/public/model"
+	"github.com/mattermost/mattermost-server/v6/model"
 	"github.com/sirupsen/logrus"
 )
 
@@ -153,14 +153,10 @@ func (m *Client) Login() error {
 		return fmt.Errorf("Team '%s' not found in %v", m.Credentials.Team, validTeamNames)
 	}
 
-	if err := m.initUserChannels(); err != nil {
-		return err
-	}
-
 	// connect websocket
 	m.wsConnect()
 
-	ctx, loginCancel := context.WithCancel(context.TODO())
+	ctx, loginCancel := context.WithCancel(context.Background())
 	m.loginCancel = loginCancel
 
 	m.logger.Debug("starting wsreceiver")
@@ -284,7 +280,7 @@ func (m *Client) serverAlive(b *backoff.Backoff) error {
 	for {
 		d := b.Duration()
 		// bogus call to get the serverversion
-		resp, err := m.Client.Logout(context.TODO())
+		resp, err := m.Client.Logout()
 		if err != nil {
 			return err
 		}
@@ -303,13 +299,11 @@ func (m *Client) serverAlive(b *backoff.Backoff) error {
 // initialize user and teams
 // nolint:funlen
 func (m *Client) initUser() error {
-	ctx := context.TODO()
-
 	m.Lock()
 	defer m.Unlock()
 	// we only load all team data on initial login.
 	// all other updates are for channels from our (primary) team only.
-	teams, _, err := m.Client.GetTeamsForUser(ctx, m.User.Id, "")
+	teams, _, err := m.Client.GetTeamsForUser(m.User.Id, "")
 	if err != nil {
 		return err
 	}
@@ -319,7 +313,7 @@ func (m *Client) initUser() error {
 		max := 200
 		usermap := make(map[string]*model.User)
 
-		mmusers, _, err := m.Client.GetUsersInTeam(ctx, team.Id, idx, max, "")
+		mmusers, _, err := m.Client.GetUsersInTeam(team.Id, idx, max, "")
 		if err != nil {
 			return err
 		}
@@ -329,7 +323,7 @@ func (m *Client) initUser() error {
 				usermap[user.Id] = user
 			}
 
-			mmusers, _, err = m.Client.GetUsersInTeam(ctx, team.Id, idx, max, "")
+			mmusers, _, err = m.Client.GetUsersInTeam(team.Id, idx, max, "")
 			if err != nil {
 				return err
 			}
@@ -338,11 +332,8 @@ func (m *Client) initUser() error {
 
 			time.Sleep(time.Millisecond * 200)
 		}
-		m.logger.Debugf("found %d users in team %s", len(usermap), team.Name)
-		// add all users
-		for k, v := range usermap {
-			m.Users[k] = v
-		}
+
+		m.logger.Infof("found %d users in team %s", len(usermap), team.Name)
 
 		t := &Team{
 			Team:  team,
@@ -350,32 +341,35 @@ func (m *Client) initUser() error {
 			ID:    team.Id,
 		}
 
+		mmchannels, _, err := m.Client.GetChannelsForTeamForUser(team.Id, m.User.Id, false, "")
+		if err != nil {
+			return err
+		}
+
+		t.Channels = mmchannels
+
+		mmchannels, _, err = m.Client.GetPublicChannelsForTeam(team.Id, 0, 5000, "")
+		if err != nil {
+			return err
+		}
+
+		t.MoreChannels = mmchannels
 		m.OtherTeams = append(m.OtherTeams, t)
 
 		if team.Name == m.Credentials.Team {
 			m.Team = t
 			m.logger.Debugf("initUser(): found our team %s (id: %s)", team.Name, team.Id)
 		}
-	}
-
-	return nil
-}
-
-func (m *Client) initUserChannels() error {
-	if err := m.UpdateChannels(); err != nil {
-		return err
-	}
-
-	for _, t := range m.OtherTeams {
-		m.logger.Debugf("found %d channels for user in team %s", len(t.Channels), t.Team.Name)
-		m.logger.Debugf("found %d public channels in team %s", len(t.MoreChannels), t.Team.Name)
+		// add all users
+		for k, v := range t.Users {
+			m.Users[k] = v
+		}
 	}
 
 	return nil
 }
 
 func (m *Client) doLogin(firstConnection bool, b *backoff.Backoff) error {
-	ctx := context.TODO()
 	var (
 		logmsg = "trying login"
 		err    error
@@ -392,9 +386,9 @@ func (m *Client) doLogin(firstConnection bool, b *backoff.Backoff) error {
 				return err
 			}
 		case m.Credentials.MFAToken != "":
-			user, _, err = m.Client.LoginWithMFA(ctx, m.Credentials.Login, m.Credentials.Pass, m.Credentials.MFAToken)
+			user, _, err = m.Client.LoginWithMFA(m.Credentials.Login, m.Credentials.Pass, m.Credentials.MFAToken)
 		default:
-			user, _, err = m.Client.Login(ctx, m.Credentials.Login, m.Credentials.Pass)
+			user, _, err = m.Client.Login(m.Credentials.Login, m.Credentials.Pass)
 		}
 
 		if err != nil {
@@ -443,7 +437,7 @@ func (m *Client) doLoginToken() (*model.User, *model.Response, error) {
 		m.logger.Debugf(logmsg + " with personal token")
 	}
 
-	user, resp, err = m.Client.GetMe(context.TODO(), "")
+	user, resp, err = m.Client.GetMe("")
 	if err != nil {
 		return user, resp, err
 	}
@@ -535,7 +529,7 @@ func (m *Client) wsConnect() {
 }
 
 func (m *Client) doCheckAlive() error {
-	if _, _, err := m.Client.GetPing(context.TODO()); err != nil {
+	if _, _, err := m.Client.GetMe(""); err != nil {
 		return err
 	}
 
@@ -698,7 +692,7 @@ func (m *Client) Logout() error {
 	// actually log out
 	m.logger.Debug("running m.Client.Logout")
 
-	if _, err := m.Client.Logout(context.TODO()); err != nil {
+	if _, err := m.Client.Logout(); err != nil {
 		return err
 	}
 

@@ -39,7 +39,6 @@ const (
 	Romanian     Locale = "ro"
 	Russian      Locale = "ru"
 	SpanishES    Locale = "es-ES"
-	SpanishLATAM Locale = "es-419"
 	Swedish      Locale = "sv-SE"
 	Thai         Locale = "th"
 	Turkish      Locale = "tr"
@@ -75,7 +74,6 @@ var Locales = map[Locale]string{
 	Romanian:     "Romanian",
 	Russian:      "Russian",
 	SpanishES:    "Spanish (Spain)",
-	SpanishLATAM: "Spanish (LATAM)",
 	Swedish:      "Swedish",
 	Thai:         "Thai",
 	Turkish:      "Turkish",

@@ -6,7 +6,7 @@ import (
 
 // BoardAddTopic creates a new topic on a community's discussion board.
 //
-// https://dev.vk.com/method/board.addTopic
+// https://vk.com/dev/board.addTopic
 func (vk *VK) BoardAddTopic(params Params) (response int, err error) {
 	err = vk.RequestUnmarshal("board.addTopic", &response, params)
 	return
@@ -14,7 +14,7 @@ func (vk *VK) BoardAddTopic(params Params) (response int, err error) {
 
 // BoardCloseTopic closes a topic on a community's discussion board so that comments cannot be posted.
 //
-// https://dev.vk.com/method/board.closeTopic
+// https://vk.com/dev/board.closeTopic
 func (vk *VK) BoardCloseTopic(params Params) (response int, err error) {
 	err = vk.RequestUnmarshal("board.closeTopic", &response, params)
 	return
@@ -22,7 +22,7 @@ func (vk *VK) BoardCloseTopic(params Params) (response int, err error) {
 
 // BoardCreateComment adds a comment on a topic on a community's discussion board.
 //
-// https://dev.vk.com/method/board.createComment
+// https://vk.com/dev/board.createComment
 func (vk *VK) BoardCreateComment(params Params) (response int, err error) {
 	err = vk.RequestUnmarshal("board.createComment", &response, params)
 	return
@@ -30,7 +30,7 @@ func (vk *VK) BoardCreateComment(params Params) (response int, err error) {
 
 // BoardDeleteComment deletes a comment on a topic on a community's discussion board.
 //
-// https://dev.vk.com/method/board.deleteComment
+// https://vk.com/dev/board.deleteComment
 func (vk *VK) BoardDeleteComment(params Params) (response int, err error) {
 	err = vk.RequestUnmarshal("board.deleteComment", &response, params)
 	return
@@ -38,7 +38,7 @@ func (vk *VK) BoardDeleteComment(params Params) (response int, err error) {
 
 // BoardDeleteTopic deletes a topic from a community's discussion board.
 //
-// https://dev.vk.com/method/board.deleteTopic
+// https://vk.com/dev/board.deleteTopic
 func (vk *VK) BoardDeleteTopic(params Params) (response int, err error) {
 	err = vk.RequestUnmarshal("board.deleteTopic", &response, params)
 	return
@@ -46,7 +46,7 @@ func (vk *VK) BoardDeleteTopic(params Params) (response int, err error) {
 
 // BoardEditComment edits a comment on a topic on a community's discussion board.
 //
-// https://dev.vk.com/method/board.editComment
+// https://vk.com/dev/board.editComment
 func (vk *VK) BoardEditComment(params Params) (response int, err error) {
 	err = vk.RequestUnmarshal("board.editComment", &response, params)
 	return
@@ -54,7 +54,7 @@ func (vk *VK) BoardEditComment(params Params) (response int, err error) {
 
 // BoardEditTopic edits the title of a topic on a community's discussion board.
 //
-// https://dev.vk.com/method/board.editTopic
+// https://vk.com/dev/board.editTopic
 func (vk *VK) BoardEditTopic(params Params) (response int, err error) {
 	err = vk.RequestUnmarshal("board.editTopic", &response, params)
 	return
@@ -62,7 +62,7 @@ func (vk *VK) BoardEditTopic(params Params) (response int, err error) {
 
 // BoardFixTopic pins a topic (fixes its place) to the top of a community's discussion board.
 //
-// https://dev.vk.com/method/board.fixTopic
+// https://vk.com/dev/board.fixTopic
 func (vk *VK) BoardFixTopic(params Params) (response int, err error) {
 	err = vk.RequestUnmarshal("board.fixTopic", &response, params)
 	return
@@ -78,9 +78,9 @@ type BoardGetCommentsResponse struct {
 
 // BoardGetComments returns a list of comments on a topic on a community's discussion board.
 //
-//	extended=0
+// 	extended=0
 //
-// https://dev.vk.com/method/board.getComments
+// https://vk.com/dev/board.getComments
 func (vk *VK) BoardGetComments(params Params) (response BoardGetCommentsResponse, err error) {
 	err = vk.RequestUnmarshal("board.getComments", &response, params, Params{"extended": false})
 
@@ -99,9 +99,9 @@ type BoardGetCommentsExtendedResponse struct {
 
 // BoardGetCommentsExtended returns a list of comments on a topic on a community's discussion board.
 //
-//	extended=1
+// 	extended=1
 //
-// https://dev.vk.com/method/board.getComments
+// https://vk.com/dev/board.getComments
 func (vk *VK) BoardGetCommentsExtended(params Params) (response BoardGetCommentsExtendedResponse, err error) {
 	err = vk.RequestUnmarshal("board.getComments", &response, params, Params{"extended": true})
 
@@ -118,9 +118,9 @@ type BoardGetTopicsResponse struct {
 
 // BoardGetTopics returns a list of topics on a community's discussion board.
 //
-//	extended=0
+// 	extended=0
 //
-// https://dev.vk.com/method/board.getTopics
+// https://vk.com/dev/board.getTopics
 func (vk *VK) BoardGetTopics(params Params) (response BoardGetTopicsResponse, err error) {
 	err = vk.RequestUnmarshal("board.getTopics", &response, params, Params{"extended": false})
 
@@ -139,9 +139,9 @@ type BoardGetTopicsExtendedResponse struct {
 
 // BoardGetTopicsExtended returns a list of topics on a community's discussion board.
 //
-//	extended=1
+// 	extended=1
 //
-// https://dev.vk.com/method/board.getTopics
+// https://vk.com/dev/board.getTopics
 func (vk *VK) BoardGetTopicsExtended(params Params) (response BoardGetTopicsExtendedResponse, err error) {
 	err = vk.RequestUnmarshal("board.getTopics", &response, params, Params{"extended": true})
 
@@ -150,7 +150,7 @@ func (vk *VK) BoardGetTopicsExtended(params Params) (response BoardGetTopicsExte
 
 // BoardOpenTopic re-opens a previously closed topic on a community's discussion board.
 //
-// https://dev.vk.com/method/board.openTopic
+// https://vk.com/dev/board.openTopic
 func (vk *VK) BoardOpenTopic(params Params) (response int, err error) {
 	err = vk.RequestUnmarshal("board.openTopic", &response, params)
 	return
@@ -158,7 +158,7 @@ func (vk *VK) BoardOpenTopic(params Params) (response int, err error) {
 
 // BoardRestoreComment restores a comment deleted from a topic on a community's discussion board.
 //
-// https://dev.vk.com/method/board.restoreComment
+// https://vk.com/dev/board.restoreComment
 func (vk *VK) BoardRestoreComment(params Params) (response int, err error) {
 	err = vk.RequestUnmarshal("board.restoreComment", &response, params)
 	return
@@ -166,7 +166,7 @@ func (vk *VK) BoardRestoreComment(params Params) (response int, err error) {
 
 // BoardUnfixTopic unpins a pinned topic from the top of a community's discussion board.
 //
-// https://dev.vk.com/method/board.unfixTopic
+// https://vk.com/dev/board.unfixTopic
 func (vk *VK) BoardUnfixTopic(params Params) (response int, err error) {
 	err = vk.RequestUnmarshal("board.unfixTopic", &response, params)
 	return

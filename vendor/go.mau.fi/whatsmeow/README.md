@@ -14,7 +14,9 @@ discussions.
 
 ## Usage
 The [godoc](https://pkg.go.dev/go.mau.fi/whatsmeow) includes docs for all methods and event types.
-There's also a [simple example](https://pkg.go.dev/go.mau.fi/whatsmeow#example-package) at the top.
+There's also a [simple example](https://godocs.io/go.mau.fi/whatsmeow#example-package) at the top.
+
+Also see [mdtest](./mdtest) for a CLI tool you can easily try out whatsmeow with.
 
 ## Features
 Most core features are already present:
@@ -25,11 +27,12 @@ Most core features are already present:
 * Joining via invite messages, using and creating invite links
 * Sending and receiving typing notifications
 * Sending and receiving delivery and read receipts
-* Reading and writing app state (contact list, chat pin/mute status, etc)
+* Reading app state (contact list, chat pin/mute status, etc)
 * Sending and handling retry receipts if message decryption fails
 * Sending status messages (experimental, may not work for large contact lists)
 
 Things that are not yet implemented:
 
+* Writing app state (contact list, chat pin/mute status, etc)
 * Sending broadcast list messages (this is not supported on WhatsApp web either)
 * Calls

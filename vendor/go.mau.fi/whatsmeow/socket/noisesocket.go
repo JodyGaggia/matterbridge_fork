@@ -24,7 +24,7 @@ type NoiseSocket struct {
 	writeCounter uint32
 	readCounter  uint32
 	writeLock    sync.Mutex
-	destroyed    atomic.Bool
+	destroyed    uint32
 	stopConsumer chan struct{}
 }
 
@@ -75,7 +75,7 @@ func (ns *NoiseSocket) Context() context.Context {
 }
 
 func (ns *NoiseSocket) Stop(disconnect bool) {
-	if ns.destroyed.CompareAndSwap(false, true) {
+	if atomic.CompareAndSwapUint32(&ns.destroyed, 0, 1) {
 		close(ns.stopConsumer)
 		ns.fs.OnDisconnect = nil
 		if disconnect {

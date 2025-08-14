@@ -1,7 +1,7 @@
 /*
 Package api implements VK API.
 
-See more https://dev.vk.com/ru/api/api-requests
+See more https://vk.com/dev/api_requests
 */
 package api // import "github.com/SevereCloud/vksdk/v2/api"
 
@@ -46,7 +46,7 @@ const (
 // 1 000 000+ – 35 requests.
 //
 // The ads section methods are subject to their own limitations,
-// you can read them on this page - https://dev.vk.com/ru/method/ads
+// you can read them on this page - https://vk.com/dev/ads_limits
 //
 // If one of this limits is exceeded, the server will return following error:
 // "Too many requests per second". (errors.TooMany).
@@ -58,7 +58,7 @@ const (
 // quantitative restrictions on calling the same type of methods.
 //
 // After exceeding the quantitative limit, access to a particular method may
-// require entering a captcha (see https://dev.vk.com/ru/api/captcha-error),
+// require entering a captcha (see https://vk.com/dev/captcha_error),
 // and may also be temporarily restricted (in this case, the server does
 // not return a response to the call of a particular method, but handles
 // any other requests without problems).
@@ -78,7 +78,7 @@ const (
 //
 // captcha_key - text entered by the user.
 //
-// More info: https://dev.vk.com/ru/api/api-requests
+// More info: https://vk.com/dev/api_requests
 const (
 	LimitUserToken  = 3
 	LimitGroupToken = 20
@@ -152,7 +152,7 @@ type Params map[string]interface{}
 // cyrillic symbols will be transliterated automatically.
 // Numeric format from account.getInfo is supported as well.
 //
-//	p.Lang(object.LangRU)
+// 	p.Lang(object.LangRU)
 //
 // See all language code in module object.
 func (p Params) Lang(v int) Params {
@@ -169,7 +169,7 @@ func (p Params) TestMode(v bool) Params {
 
 // CaptchaSID received ID.
 //
-// See https://dev.vk.com/ru/api/captcha-error
+// See https://vk.com/dev/captcha_error
 func (p Params) CaptchaSID(v string) Params {
 	p["captcha_sid"] = v
 	return p
@@ -177,7 +177,7 @@ func (p Params) CaptchaSID(v string) Params {
 
 // CaptchaKey text input.
 //
-// See https://dev.vk.com/ru/api/captcha-error
+// See https://vk.com/dev/captcha_error
 func (p Params) CaptchaKey(v string) Params {
 	p["captcha_key"] = v
 	return p
@@ -185,7 +185,7 @@ func (p Params) CaptchaKey(v string) Params {
 
 // Confirm parameter.
 //
-// See https://dev.vk.com/ru/api/confirmation-required-error
+// See https://vk.com/dev/need_confirmation
 func (p Params) Confirm(v bool) Params {
 	p["confirm"] = v
 	return p
@@ -241,7 +241,6 @@ func (vk *VK) DefaultHandler(method string, sliceParams ...Params) (Response, er
 				vk.lastTime = time.Now()
 				vk.rps = 0
 			}
-
 			vk.rps++
 
 			vk.mux.Unlock()
@@ -249,7 +248,7 @@ func (vk *VK) DefaultHandler(method string, sliceParams ...Params) (Response, er
 
 		rawBody := bytes.NewBufferString(query.Encode())
 
-		req, err := http.NewRequestWithContext(ctx, http.MethodPost, u, rawBody)
+		req, err := http.NewRequestWithContext(ctx, "POST", u, rawBody)
 		if err != nil {
 			return response, err
 		}

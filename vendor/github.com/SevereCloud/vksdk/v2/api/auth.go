@@ -6,7 +6,7 @@ import (
 
 // AuthCheckPhone checks a user's phone number for correctness.
 //
-// https://dev.vk.com/method/auth.checkPhone
+// https://vk.com/dev/auth.checkPhone
 //
 // Deprecated: This method is deprecated and may be disabled soon, please avoid
 // using it.
@@ -23,7 +23,7 @@ type AuthRestoreResponse struct {
 
 // AuthRestore allows to restore account access using a code received via SMS.
 //
-// https://dev.vk.com/method/auth.restore
+// https://vk.com/dev/auth.restore
 func (vk *VK) AuthRestore(params Params) (response AuthRestoreResponse, err error) {
 	err = vk.RequestUnmarshal("auth.restore", &response, params)
 	return
@@ -45,20 +45,20 @@ func (vk *VK) AuthGetProfileInfoBySilentToken(params Params) (response AuthGetPr
 
 // ExchangeSilentTokenSource call conditions exchangeSilentToken.
 //
-//	0	Unknown
-//	1	Silent authentication
-//	2	Auth by login and password
-//	3	Extended registration
-//	4	Auth by exchange token
-//	5	Auth by exchange token on reset password
-//	6	Auth by exchange token on unblock
-//	7	Auth by exchange token on reset session
-//	8	Auth by exchange token on change password
-//	9	Finish phone validation on authentication
-//	10	Auth by code
-//	11	Auth by external oauth
-//	12	Reactivation
-//	15	Auth by SDK temporary access-token
+// 	0	Unknown
+// 	1	Silent authentication
+// 	2	Auth by login and password
+// 	3	Extended registration
+// 	4	Auth by exchange token
+// 	5	Auth by exchange token on reset password
+// 	6	Auth by exchange token on unblock
+// 	7	Auth by exchange token on reset session
+// 	8	Auth by exchange token on change password
+// 	9	Finish phone validation on authentication
+// 	10	Auth by code
+// 	11	Auth by external oauth
+// 	12	Reactivation
+// 	15	Auth by SDK temporary access-token
 type ExchangeSilentTokenSource int
 
 // AuthExchangeSilentAuthTokenResponse struct.

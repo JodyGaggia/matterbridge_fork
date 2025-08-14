@@ -1,6 +1,3 @@
-// SPDX-License-Identifier: MIT
-// SPDX-FileCopyrightText: © 2015 LabStack LLC and Echo contributors
-
 package echo
 
 import (
@@ -14,28 +11,23 @@ import (
 	"strings"
 )
 
-// Binder is the interface that wraps the Bind method.
-type Binder interface {
-	Bind(i interface{}, c Context) error
-}
+type (
+	// Binder is the interface that wraps the Bind method.
+	Binder interface {
+		Bind(i interface{}, c Context) error
+	}
 
-// DefaultBinder is the default implementation of the Binder interface.
-type DefaultBinder struct{}
+	// DefaultBinder is the default implementation of the Binder interface.
+	DefaultBinder struct{}
 
-// BindUnmarshaler is the interface used to wrap the UnmarshalParam method.
-// Types that don't implement this, but do implement encoding.TextUnmarshaler
-// will use that interface instead.
-type BindUnmarshaler interface {
-	// UnmarshalParam decodes and assigns a value from an form or query param.
-	UnmarshalParam(param string) error
-}
-
-// bindMultipleUnmarshaler is used by binder to unmarshal multiple values from request at once to
-// type implementing this interface. For example request could have multiple query fields `?a=1&a=2&b=test` in that case
-// for `a` following slice `["1", "2"] will be passed to unmarshaller.
-type bindMultipleUnmarshaler interface {
-	UnmarshalParams(params []string) error
-}
+	// BindUnmarshaler is the interface used to wrap the UnmarshalParam method.
+	// Types that don't implement this, but do implement encoding.TextUnmarshaler
+	// will use that interface instead.
+	BindUnmarshaler interface {
+		// UnmarshalParam decodes and assigns a value from an form or query param.
+		UnmarshalParam(param string) error
+	}
+)
 
 // BindPathParams binds path params to bindable object
 func (b *DefaultBinder) BindPathParams(c Context, i interface{}) error {
@@ -122,7 +114,7 @@ func (b *DefaultBinder) Bind(i interface{}, c Context) (err error) {
 	// Only bind query parameters for GET/DELETE/HEAD to avoid unexpected behavior with destination struct binding from body.
 	// For example a request URL `&id=1&lang=en` with body `{"id":100,"lang":"de"}` would lead to precedence issues.
 	// The HTTP method check restores pre-v4.1.11 behavior to avoid these problems (see issue #1670)
-	method := c.Request().Method
+  method := c.Request().Method
 	if method == http.MethodGet || method == http.MethodDelete || method == http.MethodHead {
 		if err = b.BindQueryParams(c, i); err != nil {
 			return err
@@ -139,29 +131,10 @@ func (b *DefaultBinder) bindData(destination interface{}, data map[string][]stri
 	typ := reflect.TypeOf(destination).Elem()
 	val := reflect.ValueOf(destination).Elem()
 
-	// Support binding to limited Map destinations:
-	// - map[string][]string,
-	// - map[string]string <-- (binds first value from data slice)
-	// - map[string]interface{}
-	// You are better off binding to struct but there are user who want this map feature. Source of data for these cases are:
-	// params,query,header,form as these sources produce string values, most of the time slice of strings, actually.
-	if typ.Kind() == reflect.Map && typ.Key().Kind() == reflect.String {
-		k := typ.Elem().Kind()
-		isElemInterface := k == reflect.Interface
-		isElemString := k == reflect.String
-		isElemSliceOfStrings := k == reflect.Slice && typ.Elem().Elem().Kind() == reflect.String
-		if !(isElemSliceOfStrings || isElemString || isElemInterface) {
-			return nil
-		}
-		if val.IsNil() {
-			val.Set(reflect.MakeMap(typ))
-		}
+	// Map
+	if typ.Kind() == reflect.Map {
 		for k, v := range data {
-			if isElemString {
-				val.SetMapIndex(reflect.ValueOf(k), reflect.ValueOf(v[0]))
-			} else {
-				val.SetMapIndex(reflect.ValueOf(k), reflect.ValueOf(v))
-			}
+			val.SetMapIndex(reflect.ValueOf(k), reflect.ValueOf(v[0]))
 		}
 		return nil
 	}
@@ -188,14 +161,14 @@ func (b *DefaultBinder) bindData(destination interface{}, data map[string][]stri
 		}
 		structFieldKind := structField.Kind()
 		inputFieldName := typeField.Tag.Get(tag)
-		if typeField.Anonymous && structFieldKind == reflect.Struct && inputFieldName != "" {
+		if typeField.Anonymous && structField.Kind() == reflect.Struct && inputFieldName != "" {
 			// if anonymous struct with query/param/form tags, report an error
 			return errors.New("query/param/form tags are not allowed with anonymous struct field")
 		}
 
 		if inputFieldName == "" {
 			// If tag is nil, we inspect if the field is a not BindUnmarshaler struct and try to bind data into it (might contains fields with tags).
-			// structs that implement BindUnmarshaler are bound only when they have explicit tag
+			// structs that implement BindUnmarshaler are binded only when they have explicit tag
 			if _, ok := structField.Addr().Interface().(BindUnmarshaler); !ok && structFieldKind == reflect.Struct {
 				if err := b.bindData(structField.Addr().Interface(), data, tag); err != nil {
 					return err
@@ -224,46 +197,27 @@ func (b *DefaultBinder) bindData(destination interface{}, data map[string][]stri
 			continue
 		}
 
-		// NOTE: algorithm here is not particularly sophisticated. It probably does not work with absurd types like `**[]*int`
-		// but it is smart enough to handle niche cases like `*int`,`*[]string`,`[]*int` .
-
-		// try unmarshalling first, in case we're dealing with an alias to an array type
-		if ok, err := unmarshalInputsToField(typeField.Type.Kind(), inputValue, structField); ok {
+		// Call this first, in case we're dealing with an alias to an array type
+		if ok, err := unmarshalField(typeField.Type.Kind(), inputValue[0], structField); ok {
 			if err != nil {
 				return err
 			}
 			continue
 		}
 
-		if ok, err := unmarshalInputToField(typeField.Type.Kind(), inputValue[0], structField); ok {
-			if err != nil {
-				return err
-			}
-			continue
-		}
-
-		// we could be dealing with pointer to slice `*[]string` so dereference it. There are wierd OpenAPI generators
-		// that could create struct fields like that.
-		if structFieldKind == reflect.Pointer {
-			structFieldKind = structField.Elem().Kind()
-			structField = structField.Elem()
-		}
-
-		if structFieldKind == reflect.Slice {
+		numElems := len(inputValue)
+		if structFieldKind == reflect.Slice && numElems > 0 {
 			sliceOf := structField.Type().Elem().Kind()
-			numElems := len(inputValue)
 			slice := reflect.MakeSlice(structField.Type(), numElems, numElems)
 			for j := 0; j < numElems; j++ {
 				if err := setWithProperType(sliceOf, inputValue[j], slice.Index(j)); err != nil {
 					return err
 				}
 			}
-			structField.Set(slice)
-			continue
-		}
-
-		if err := setWithProperType(structFieldKind, inputValue[0], structField); err != nil {
+			val.Field(i).Set(slice)
+		} else if err := setWithProperType(typeField.Type.Kind(), inputValue[0], structField); err != nil {
 			return err
+
 		}
 	}
 	return nil
@@ -271,7 +225,7 @@ func (b *DefaultBinder) bindData(destination interface{}, data map[string][]stri
 
 func setWithProperType(valueKind reflect.Kind, val string, structField reflect.Value) error {
 	// But also call it here, in case we're dealing with an array of BindUnmarshalers
-	if ok, err := unmarshalInputToField(valueKind, val, structField); ok {
+	if ok, err := unmarshalField(valueKind, val, structField); ok {
 		return err
 	}
 
@@ -312,39 +266,33 @@ func setWithProperType(valueKind reflect.Kind, val string, structField reflect.V
 	return nil
 }
 
-func unmarshalInputsToField(valueKind reflect.Kind, values []string, field reflect.Value) (bool, error) {
-	if valueKind == reflect.Ptr {
-		if field.IsNil() {
-			field.Set(reflect.New(field.Type().Elem()))
-		}
-		field = field.Elem()
+func unmarshalField(valueKind reflect.Kind, val string, field reflect.Value) (bool, error) {
+	switch valueKind {
+	case reflect.Ptr:
+		return unmarshalFieldPtr(val, field)
+	default:
+		return unmarshalFieldNonPtr(val, field)
 	}
-
-	fieldIValue := field.Addr().Interface()
-	unmarshaler, ok := fieldIValue.(bindMultipleUnmarshaler)
-	if !ok {
-		return false, nil
-	}
-	return true, unmarshaler.UnmarshalParams(values)
 }
 
-func unmarshalInputToField(valueKind reflect.Kind, val string, field reflect.Value) (bool, error) {
-	if valueKind == reflect.Ptr {
-		if field.IsNil() {
-			field.Set(reflect.New(field.Type().Elem()))
-		}
-		field = field.Elem()
-	}
-
+func unmarshalFieldNonPtr(value string, field reflect.Value) (bool, error) {
 	fieldIValue := field.Addr().Interface()
-	switch unmarshaler := fieldIValue.(type) {
-	case BindUnmarshaler:
-		return true, unmarshaler.UnmarshalParam(val)
-	case encoding.TextUnmarshaler:
-		return true, unmarshaler.UnmarshalText([]byte(val))
+	if unmarshaler, ok := fieldIValue.(BindUnmarshaler); ok {
+		return true, unmarshaler.UnmarshalParam(value)
+	}
+	if unmarshaler, ok := fieldIValue.(encoding.TextUnmarshaler); ok {
+		return true, unmarshaler.UnmarshalText([]byte(value))
 	}
 
 	return false, nil
+}
+
+func unmarshalFieldPtr(value string, field reflect.Value) (bool, error) {
+	if field.IsNil() {
+		// Initialize the pointer to a nil value
+		field.Set(reflect.New(field.Type().Elem()))
+	}
+	return unmarshalFieldNonPtr(value, field.Elem())
 }
 
 func setIntField(value string, bitSize int, field reflect.Value) error {

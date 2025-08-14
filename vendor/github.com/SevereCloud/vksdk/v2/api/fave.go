@@ -6,7 +6,7 @@ import (
 
 // FaveAddArticle adds a link to user faves.
 //
-// https://dev.vk.com/method/fave.addArticle
+// https://vk.com/dev/fave.addArticle
 func (vk *VK) FaveAddArticle(params Params) (response int, err error) {
 	err = vk.RequestUnmarshal("fave.addArticle", &response, params)
 	return
@@ -14,7 +14,7 @@ func (vk *VK) FaveAddArticle(params Params) (response int, err error) {
 
 // FaveAddLink adds a link to user faves.
 //
-// https://dev.vk.com/method/fave.addLink
+// https://vk.com/dev/fave.addLink
 func (vk *VK) FaveAddLink(params Params) (response int, err error) {
 	err = vk.RequestUnmarshal("fave.addLink", &response, params)
 	return
@@ -22,7 +22,7 @@ func (vk *VK) FaveAddLink(params Params) (response int, err error) {
 
 // FaveAddPage method.
 //
-// https://dev.vk.com/method/fave.addPage
+// https://vk.com/dev/fave.addPage
 func (vk *VK) FaveAddPage(params Params) (response int, err error) {
 	err = vk.RequestUnmarshal("fave.addPage", &response, params)
 	return
@@ -30,7 +30,7 @@ func (vk *VK) FaveAddPage(params Params) (response int, err error) {
 
 // FaveAddPost method.
 //
-// https://dev.vk.com/method/fave.addPost
+// https://vk.com/dev/fave.addPost
 func (vk *VK) FaveAddPost(params Params) (response int, err error) {
 	err = vk.RequestUnmarshal("fave.addPost", &response, params)
 	return
@@ -38,7 +38,7 @@ func (vk *VK) FaveAddPost(params Params) (response int, err error) {
 
 // FaveAddProduct method.
 //
-// https://dev.vk.com/method/fave.addProduct
+// https://vk.com/dev/fave.addProduct
 func (vk *VK) FaveAddProduct(params Params) (response int, err error) {
 	err = vk.RequestUnmarshal("fave.addProduct", &response, params)
 	return
@@ -49,7 +49,7 @@ type FaveAddTagResponse object.FaveTag
 
 // FaveAddTag method.
 //
-// https://dev.vk.com/method/fave.addTag
+// https://vk.com/dev/fave.addTag
 func (vk *VK) FaveAddTag(params Params) (response FaveAddTagResponse, err error) {
 	err = vk.RequestUnmarshal("fave.addTag", &response, params)
 	return
@@ -57,7 +57,7 @@ func (vk *VK) FaveAddTag(params Params) (response FaveAddTagResponse, err error)
 
 // FaveAddVideo method.
 //
-// https://dev.vk.com/method/fave.addVideo
+// https://vk.com/dev/fave.addVideo
 func (vk *VK) FaveAddVideo(params Params) (response int, err error) {
 	err = vk.RequestUnmarshal("fave.addVideo", &response, params)
 	return
@@ -65,7 +65,7 @@ func (vk *VK) FaveAddVideo(params Params) (response int, err error) {
 
 // FaveEditTag method.
 //
-// https://dev.vk.com/method/fave.editTag
+// https://vk.com/dev/fave.editTag
 func (vk *VK) FaveEditTag(params Params) (response int, err error) {
 	err = vk.RequestUnmarshal("fave.editTag", &response, params)
 	return
@@ -79,9 +79,9 @@ type FaveGetResponse struct {
 
 // FaveGet method.
 //
-//	extended=0
+// 	extended=0
 //
-// https://dev.vk.com/method/fave.get
+// https://vk.com/dev/fave.get
 func (vk *VK) FaveGet(params Params) (response FaveGetResponse, err error) {
 	err = vk.RequestUnmarshal("fave.get", &response, params, Params{"extended": false})
 
@@ -97,9 +97,9 @@ type FaveGetExtendedResponse struct {
 
 // FaveGetExtended method.
 //
-//	extended=1
+// 	extended=1
 //
-// https://dev.vk.com/method/fave.get
+// https://vk.com/dev/fave.get
 func (vk *VK) FaveGetExtended(params Params) (response FaveGetExtendedResponse, err error) {
 	err = vk.RequestUnmarshal("fave.get", &response, params, Params{"extended": true})
 
@@ -114,7 +114,7 @@ type FaveGetPagesResponse struct {
 
 // FaveGetPages method.
 //
-// https://dev.vk.com/method/fave.getPages
+// https://vk.com/dev/fave.getPages
 func (vk *VK) FaveGetPages(params Params) (response FaveGetPagesResponse, err error) {
 	err = vk.RequestUnmarshal("fave.getPages", &response, params)
 	return
@@ -128,7 +128,7 @@ type FaveGetTagsResponse struct {
 
 // FaveGetTags method.
 //
-// https://dev.vk.com/method/fave.getTags
+// https://vk.com/dev/fave.getTags
 func (vk *VK) FaveGetTags(params Params) (response FaveGetTagsResponse, err error) {
 	err = vk.RequestUnmarshal("fave.getTags", &response, params)
 	return
@@ -136,7 +136,7 @@ func (vk *VK) FaveGetTags(params Params) (response FaveGetTagsResponse, err erro
 
 // FaveMarkSeen method.
 //
-// https://dev.vk.com/method/fave.markSeen
+// https://vk.com/dev/fave.markSeen
 func (vk *VK) FaveMarkSeen(params Params) (response int, err error) {
 	err = vk.RequestUnmarshal("fave.markSeen", &response, params)
 	return
@@ -144,7 +144,7 @@ func (vk *VK) FaveMarkSeen(params Params) (response int, err error) {
 
 // FaveRemoveArticle method.
 //
-// https://dev.vk.com/method/fave.removeArticle
+// https://vk.com/dev/fave.removeArticle
 func (vk *VK) FaveRemoveArticle(params Params) (response int, err error) {
 	err = vk.RequestUnmarshal("fave.removeArticle", &response, params)
 	return
@@ -152,7 +152,7 @@ func (vk *VK) FaveRemoveArticle(params Params) (response int, err error) {
 
 // FaveRemoveLink removes link from the user's faves.
 //
-// https://dev.vk.com/method/fave.removeLink
+// https://vk.com/dev/fave.removeLink
 func (vk *VK) FaveRemoveLink(params Params) (response int, err error) {
 	err = vk.RequestUnmarshal("fave.removeLink", &response, params)
 	return
@@ -160,7 +160,7 @@ func (vk *VK) FaveRemoveLink(params Params) (response int, err error) {
 
 // FaveRemovePage method.
 //
-// https://dev.vk.com/method/fave.removePage
+// https://vk.com/dev/fave.removePage
 func (vk *VK) FaveRemovePage(params Params) (response int, err error) {
 	err = vk.RequestUnmarshal("fave.removePage", &response, params)
 	return
@@ -168,7 +168,7 @@ func (vk *VK) FaveRemovePage(params Params) (response int, err error) {
 
 // FaveRemovePost method.
 //
-// https://dev.vk.com/method/fave.removePost
+// https://vk.com/dev/fave.removePost
 func (vk *VK) FaveRemovePost(params Params) (response int, err error) {
 	err = vk.RequestUnmarshal("fave.removePost", &response, params)
 	return
@@ -176,7 +176,7 @@ func (vk *VK) FaveRemovePost(params Params) (response int, err error) {
 
 // FaveRemoveProduct method.
 //
-// https://dev.vk.com/method/fave.removeProduct
+// https://vk.com/dev/fave.removeProduct
 func (vk *VK) FaveRemoveProduct(params Params) (response int, err error) {
 	err = vk.RequestUnmarshal("fave.removeProduct", &response, params)
 	return
@@ -184,7 +184,7 @@ func (vk *VK) FaveRemoveProduct(params Params) (response int, err error) {
 
 // FaveRemoveTag method.
 //
-// https://dev.vk.com/method/fave.removeTag
+// https://vk.com/dev/fave.removeTag
 func (vk *VK) FaveRemoveTag(params Params) (response int, err error) {
 	err = vk.RequestUnmarshal("fave.removeTag", &response, params)
 	return
@@ -192,7 +192,7 @@ func (vk *VK) FaveRemoveTag(params Params) (response int, err error) {
 
 // FaveRemoveVideo method.
 //
-// https://dev.vk.com/method/fave.removeVideo
+// https://vk.com/dev/fave.removeVideo
 func (vk *VK) FaveRemoveVideo(params Params) (response int, err error) {
 	err = vk.RequestUnmarshal("fave.removeVideo", &response, params)
 	return
@@ -200,7 +200,7 @@ func (vk *VK) FaveRemoveVideo(params Params) (response int, err error) {
 
 // FaveReorderTags method.
 //
-// https://dev.vk.com/method/fave.reorderTags
+// https://vk.com/dev/fave.reorderTags
 func (vk *VK) FaveReorderTags(params Params) (response int, err error) {
 	err = vk.RequestUnmarshal("fave.reorderTags", &response, params)
 	return
@@ -208,7 +208,7 @@ func (vk *VK) FaveReorderTags(params Params) (response int, err error) {
 
 // FaveSetPageTags method.
 //
-// https://dev.vk.com/method/fave.setPageTags
+// https://vk.com/dev/fave.setPageTags
 func (vk *VK) FaveSetPageTags(params Params) (response int, err error) {
 	err = vk.RequestUnmarshal("fave.setPageTags", &response, params)
 	return
@@ -216,7 +216,7 @@ func (vk *VK) FaveSetPageTags(params Params) (response int, err error) {
 
 // FaveSetTags method.
 //
-// https://dev.vk.com/method/fave.setTags
+// https://vk.com/dev/fave.setTags
 func (vk *VK) FaveSetTags(params Params) (response int, err error) {
 	err = vk.RequestUnmarshal("fave.setTags", &response, params)
 	return
@@ -224,7 +224,7 @@ func (vk *VK) FaveSetTags(params Params) (response int, err error) {
 
 // FaveTrackPageInteraction method.
 //
-// https://dev.vk.com/method/fave.trackPageInteraction
+// https://vk.com/dev/fave.trackPageInteraction
 func (vk *VK) FaveTrackPageInteraction(params Params) (response int, err error) {
 	err = vk.RequestUnmarshal("fave.trackPageInteraction", &response, params)
 	return

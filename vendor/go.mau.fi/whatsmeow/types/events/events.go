@@ -9,16 +9,10 @@ package events
 
 import (
 	"fmt"
-	"strconv"
 	"time"
 
 	waBinary "go.mau.fi/whatsmeow/binary"
 	waProto "go.mau.fi/whatsmeow/binary/proto"
-	armadillo "go.mau.fi/whatsmeow/proto"
-	"go.mau.fi/whatsmeow/proto/waArmadilloApplication"
-	"go.mau.fi/whatsmeow/proto/waConsumerApplication"
-	"go.mau.fi/whatsmeow/proto/waMsgApplication"
-	"go.mau.fi/whatsmeow/proto/waMsgTransport"
 	"go.mau.fi/whatsmeow/types"
 )
 
@@ -74,22 +68,6 @@ type KeepAliveTimeout struct {
 // KeepAliveRestored is emitted if the keepalive pings start working again after some KeepAliveTimeout events.
 // Note that if the websocket disconnects before the pings start working, this event will not be emitted.
 type KeepAliveRestored struct{}
-
-// PermanentDisconnect is a class of events emitted when the client will not auto-reconnect by default.
-type PermanentDisconnect interface {
-	PermanentDisconnectDescription() string
-}
-
-func (l *LoggedOut) PermanentDisconnectDescription() string     { return l.Reason.String() }
-func (*StreamReplaced) PermanentDisconnectDescription() string  { return "stream replaced" }
-func (*ClientOutdated) PermanentDisconnectDescription() string  { return "client outdated" }
-func (*CATRefreshError) PermanentDisconnectDescription() string { return "CAT refresh failed" }
-func (tb *TemporaryBan) PermanentDisconnectDescription() string {
-	return fmt.Sprintf("temporarily banned: %s", tb.String())
-}
-func (cf *ConnectFailure) PermanentDisconnectDescription() string {
-	return fmt.Sprintf("connect failure: %s", cf.Reason.String())
-}
 
 // LoggedOut is emitted when the client has been unpaired from the phone.
 //
@@ -155,22 +133,15 @@ func (tb *TemporaryBan) String() string {
 type ConnectFailureReason int
 
 const (
-	ConnectFailureGeneric        ConnectFailureReason = 400
 	ConnectFailureLoggedOut      ConnectFailureReason = 401
 	ConnectFailureTempBanned     ConnectFailureReason = 402
-	ConnectFailureMainDeviceGone ConnectFailureReason = 403 // this is now called LOCKED in the whatsapp web code
-	ConnectFailureUnknownLogout  ConnectFailureReason = 406 // this is now called BANNED in the whatsapp web code
+	ConnectFailureMainDeviceGone ConnectFailureReason = 403
+	ConnectFailureUnknownLogout  ConnectFailureReason = 406
 
 	ConnectFailureClientOutdated ConnectFailureReason = 405
 	ConnectFailureBadUserAgent   ConnectFailureReason = 409
 
-	ConnectFailureCATExpired ConnectFailureReason = 413
-	ConnectFailureCATInvalid ConnectFailureReason = 414
-	ConnectFailureNotFound   ConnectFailureReason = 415
-
-	ConnectFailureInternalServerError ConnectFailureReason = 500
-	ConnectFailureExperimental        ConnectFailureReason = 501
-	ConnectFailureServiceUnavailable  ConnectFailureReason = 503
+	// 400, 500 and 501 are also existing codes, but the meaning is unknown
 )
 
 var connectFailureReasonMessage = map[ConnectFailureReason]string{
@@ -180,17 +151,11 @@ var connectFailureReasonMessage = map[ConnectFailureReason]string{
 	ConnectFailureUnknownLogout:  "logged out for unknown reason",
 	ConnectFailureClientOutdated: "client is out of date",
 	ConnectFailureBadUserAgent:   "client user agent was rejected",
-	ConnectFailureCATExpired:     "messenger crypto auth token has expired",
-	ConnectFailureCATInvalid:     "messenger crypto auth token is invalid",
 }
 
 // IsLoggedOut returns true if the client should delete session data due to this connect failure.
 func (cfr ConnectFailureReason) IsLoggedOut() bool {
 	return cfr == ConnectFailureLoggedOut || cfr == ConnectFailureMainDeviceGone || cfr == ConnectFailureUnknownLogout
-}
-
-func (cfr ConnectFailureReason) NumberString() string {
-	return strconv.Itoa(int(cfr))
 }
 
 // String returns the reason code and a short human-readable description of the error.
@@ -206,17 +171,12 @@ func (cfr ConnectFailureReason) String() string {
 //
 // Known reasons are handled internally and emitted as different events (e.g. LoggedOut and TemporaryBan).
 type ConnectFailure struct {
-	Reason  ConnectFailureReason
-	Message string
-	Raw     *waBinary.Node
+	Reason ConnectFailureReason
+	Raw    *waBinary.Node
 }
 
 // ClientOutdated is emitted when the WhatsApp server rejects the connection with the ConnectFailureClientOutdated code.
 type ClientOutdated struct{}
-
-type CATRefreshError struct {
-	Error error
-}
 
 // StreamError is emitted when the WhatsApp server sends a <stream:error> node with an unknown code.
 //
@@ -234,13 +194,6 @@ type HistorySync struct {
 	Data *waProto.HistorySync
 }
 
-type DecryptFailMode string
-
-const (
-	DecryptFailShow DecryptFailMode = ""
-	DecryptFailHide DecryptFailMode = "hide"
-)
-
 // UndecryptableMessage is emitted when receiving a new message that failed to decrypt.
 //
 // The library will automatically ask the sender to retry. If the sender resends the message,
@@ -253,16 +206,6 @@ type UndecryptableMessage struct {
 	// IsUnavailable is true if the recipient device didn't send a ciphertext to this device at all
 	// (as opposed to sending a ciphertext, but the ciphertext not being decryptable).
 	IsUnavailable bool
-
-	DecryptFailMode DecryptFailMode
-}
-
-type NewsletterMessageMeta struct {
-	// When a newsletter message is edited, the message isn't wrapped in an EditedMessage like normal messages.
-	// Instead, the message is the new content, the ID is the original message ID, and the edit timestamp is here.
-	EditTS time.Time
-	// This is the timestamp of the original message for edits.
-	OriginalTS time.Time
 }
 
 // Message is emitted when receiving a new message.
@@ -271,50 +214,14 @@ type Message struct {
 	Message *waProto.Message  // The actual message struct
 
 	IsEphemeral           bool // True if the message was unwrapped from an EphemeralMessage
-	IsViewOnce            bool // True if the message was unwrapped from a ViewOnceMessage, ViewOnceMessageV2 or ViewOnceMessageV2Extension
-	IsViewOnceV2          bool // True if the message was unwrapped from a ViewOnceMessageV2 or ViewOnceMessageV2Extension
-	IsViewOnceV2Extension bool // True if the message was unwrapped from a ViewOnceMessageV2Extension
+	IsViewOnce            bool // True if the message was unwrapped from a ViewOnceMessage or ViewOnceMessageV2
+	IsViewOnceV2          bool // True if the message was unwrapped from a ViewOnceMessage
 	IsDocumentWithCaption bool // True if the message was unwrapped from a DocumentWithCaptionMessage
-	IsLottieSticker       bool // True if the message was unwrapped from a LottieStickerMessage
 	IsEdit                bool // True if the message was unwrapped from an EditedMessage
-
-	// If this event was parsed from a WebMessageInfo (i.e. from a history sync or unavailable message request), the source data is here.
-	SourceWebMsg *waProto.WebMessageInfo
-	// If this event is a response to an unavailable message request, the request ID is here.
-	UnavailableRequestID types.MessageID
-	// If the message was re-requested from the sender, this is the number of retries it took.
-	RetryCount int
-
-	NewsletterMeta *NewsletterMessageMeta
 
 	// The raw message struct. This is the raw unmodified data, which means the actual message might
 	// be wrapped in DeviceSentMessage, EphemeralMessage or ViewOnceMessage.
 	RawMessage *waProto.Message
-}
-
-type FBMessage struct {
-	Info    types.MessageInfo               // Information about the message like the chat and sender IDs
-	Message armadillo.MessageApplicationSub // The actual message struct
-
-	// If the message was re-requested from the sender, this is the number of retries it took.
-	RetryCount int
-
-	Transport   *waMsgTransport.MessageTransport     // The first level of wrapping the message was in
-	Application *waMsgApplication.MessageApplication // The second level of wrapping the message was in
-}
-
-func (evt *FBMessage) GetConsumerApplication() *waConsumerApplication.ConsumerApplication {
-	if consumerApp, ok := evt.Message.(*waConsumerApplication.ConsumerApplication); ok {
-		return consumerApp
-	}
-	return nil
-}
-
-func (evt *FBMessage) GetArmadillo() *waArmadilloApplication.Armadillo {
-	if armadillo, ok := evt.Message.(*waArmadilloApplication.Armadillo); ok {
-		return armadillo
-	}
-	return nil
 }
 
 // UnwrapRaw fills the Message, IsEphemeral and IsViewOnce fields based on the raw message in the RawMessage field.
@@ -322,7 +229,7 @@ func (evt *Message) UnwrapRaw() *Message {
 	evt.Message = evt.RawMessage
 	if evt.Message.GetDeviceSentMessage().GetMessage() != nil {
 		evt.Info.DeviceSentMeta = &types.DeviceSentMeta{
-			DestinationJID: evt.Message.GetDeviceSentMessage().GetDestinationJID(),
+			DestinationJID: evt.Message.GetDeviceSentMessage().GetDestinationJid(),
 			Phash:          evt.Message.GetDeviceSentMessage().GetPhash(),
 		}
 		evt.Message = evt.Message.GetDeviceSentMessage().GetMessage()
@@ -340,16 +247,6 @@ func (evt *Message) UnwrapRaw() *Message {
 		evt.IsViewOnce = true
 		evt.IsViewOnceV2 = true
 	}
-	if evt.Message.GetViewOnceMessageV2Extension().GetMessage() != nil {
-		evt.Message = evt.Message.GetViewOnceMessageV2Extension().GetMessage()
-		evt.IsViewOnce = true
-		evt.IsViewOnceV2 = true
-		evt.IsViewOnceV2Extension = true
-	}
-	if evt.Message.GetLottieStickerMessage().GetMessage() != nil {
-		evt.Message = evt.Message.GetLottieStickerMessage().GetMessage()
-		evt.IsLottieSticker = true
-	}
 	if evt.Message.GetDocumentWithCaptionMessage().GetMessage() != nil {
 		evt.Message = evt.Message.GetDocumentWithCaptionMessage().GetMessage()
 		evt.IsDocumentWithCaption = true
@@ -361,18 +258,43 @@ func (evt *Message) UnwrapRaw() *Message {
 	return evt
 }
 
-// Deprecated: use types.ReceiptType directly
-type ReceiptType = types.ReceiptType
+// ReceiptType represents the type of a Receipt event.
+type ReceiptType string
 
-// Deprecated: use types.ReceiptType* constants directly
 const (
-	ReceiptTypeDelivered = types.ReceiptTypeDelivered
-	ReceiptTypeSender    = types.ReceiptTypeSender
-	ReceiptTypeRetry     = types.ReceiptTypeRetry
-	ReceiptTypeRead      = types.ReceiptTypeRead
-	ReceiptTypeReadSelf  = types.ReceiptTypeReadSelf
-	ReceiptTypePlayed    = types.ReceiptTypePlayed
+	// ReceiptTypeDelivered means the message was delivered to the device (but the user might not have noticed).
+	ReceiptTypeDelivered ReceiptType = ""
+	// ReceiptTypeSender is sent by your other devices when a message you sent is delivered to them.
+	ReceiptTypeSender ReceiptType = "sender"
+	// ReceiptTypeRetry means the message was delivered to the device, but decrypting the message failed.
+	ReceiptTypeRetry ReceiptType = "retry"
+	// ReceiptTypeRead means the user opened the chat and saw the message.
+	ReceiptTypeRead ReceiptType = "read"
+	// ReceiptTypeReadSelf means the current user read a message from a different device, and has read receipts disabled in privacy settings.
+	ReceiptTypeReadSelf ReceiptType = "read-self"
+	// ReceiptTypePlayed means the user opened a view-once media message.
+	//
+	// This is dispatched for both incoming and outgoing messages when played. If the current user opened the media,
+	// it means the media should be removed from all devices. If a recipient opened the media, it's just a notification
+	// for the sender that the media was viewed.
+	ReceiptTypePlayed ReceiptType = "played"
 )
+
+// GoString returns the name of the Go constant for the ReceiptType value.
+func (rt ReceiptType) GoString() string {
+	switch rt {
+	case ReceiptTypeRead:
+		return "events.ReceiptTypeRead"
+	case ReceiptTypeReadSelf:
+		return "events.ReceiptTypeReadSelf"
+	case ReceiptTypeDelivered:
+		return "events.ReceiptTypeDelivered"
+	case ReceiptTypePlayed:
+		return "events.ReceiptTypePlayed"
+	default:
+		return fmt.Sprintf("events.ReceiptType(%#v)", string(rt))
+	}
+}
 
 // Receipt is emitted when an outgoing message is delivered to or read by another user, or when another device reads an incoming message.
 //
@@ -381,7 +303,7 @@ type Receipt struct {
 	types.MessageSource
 	MessageIDs []types.MessageID
 	Timestamp  time.Time
-	Type       types.ReceiptType
+	Type       ReceiptType
 }
 
 // ChatPresence is emitted when a chat state update (also known as typing notification) is received.
@@ -480,8 +402,6 @@ type PrivacySettings struct {
 	StatusChanged       bool
 	ProfileChanged      bool
 	ReadReceiptsChanged bool
-	OnlineChanged       bool
-	CallAddChanged      bool
 }
 
 // OfflineSyncPreview is emitted right after connecting if the server is going to send events that the client missed during downtime.
@@ -517,53 +437,4 @@ type MediaRetry struct {
 	ChatID    types.JID       // The chat ID where the message was sent.
 	SenderID  types.JID       // The user who sent the message. Only present in groups.
 	FromMe    bool            // Whether the message was sent by the current user or someone else.
-}
-
-type BlocklistAction string
-
-const (
-	BlocklistActionDefault BlocklistAction = ""
-	BlocklistActionModify  BlocklistAction = "modify"
-)
-
-// Blocklist is emitted when the user's blocked user list is changed.
-type Blocklist struct {
-	// Action specifies what happened. If it's empty, there should be a list of changes in the Changes list.
-	// If it's "modify", then the Changes list will be empty and the whole blocklist should be re-requested.
-	Action    BlocklistAction
-	DHash     string
-	PrevDHash string
-	Changes   []BlocklistChange
-}
-
-type BlocklistChangeAction string
-
-const (
-	BlocklistChangeActionBlock   BlocklistChangeAction = "block"
-	BlocklistChangeActionUnblock BlocklistChangeAction = "unblock"
-)
-
-type BlocklistChange struct {
-	JID    types.JID
-	Action BlocklistChangeAction
-}
-
-type NewsletterJoin struct {
-	types.NewsletterMetadata
-}
-
-type NewsletterLeave struct {
-	ID   types.JID            `json:"id"`
-	Role types.NewsletterRole `json:"role"`
-}
-
-type NewsletterMuteChange struct {
-	ID   types.JID                 `json:"id"`
-	Mute types.NewsletterMuteState `json:"mute"`
-}
-
-type NewsletterLiveUpdate struct {
-	JID      types.JID
-	Time     time.Time
-	Messages []*types.NewsletterMessage
 }

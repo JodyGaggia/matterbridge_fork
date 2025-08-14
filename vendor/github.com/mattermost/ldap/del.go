@@ -6,9 +6,9 @@
 package ldap
 
 import (
-	ber "github.com/go-asn1-ber/asn1-ber"
+	"log"
 
-	"github.com/mattermost/mattermost/server/public/shared/mlog"
+	ber "github.com/go-asn1-ber/asn1-ber"
 )
 
 // DelRequest implements an LDAP deletion request
@@ -52,14 +52,13 @@ func (l *Conn) Del(delRequest *DelRequest) error {
 		return err
 	}
 
-	tag := packet.Children[1].Tag
-	if tag == ApplicationDelResponse {
+	if packet.Children[1].Tag == ApplicationDelResponse {
 		err := GetLDAPError(packet)
 		if err != nil {
 			return err
 		}
 	} else {
-		l.Debug.Log("Unexpected Response tag", mlog.Uint("tag", tag))
+		log.Printf("Unexpected Response: %d", packet.Children[1].Tag)
 	}
 	return nil
 }

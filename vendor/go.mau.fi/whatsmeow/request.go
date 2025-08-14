@@ -10,6 +10,7 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"sync/atomic"
 	"time"
 
 	waBinary "go.mau.fi/whatsmeow/binary"
@@ -17,7 +18,7 @@ import (
 )
 
 func (cli *Client) generateRequestID() string {
-	return cli.uniqueID + strconv.FormatUint(cli.idCounter.Add(1), 10)
+	return cli.uniqueID + strconv.FormatUint(uint64(atomic.AddUint32(&cli.idCounter, 1)), 10)
 }
 
 var xmlStreamEndNode = &waBinary.Node{Tag: "xmlstreamend"}
@@ -138,15 +139,13 @@ func (cli *Client) sendIQAsync(query infoQuery) (<-chan *waBinary.Node, error) {
 	return ch, err
 }
 
-const defaultRequestTimeout = 75 * time.Second
-
 func (cli *Client) sendIQ(query infoQuery) (*waBinary.Node, error) {
 	resChan, data, err := cli.sendIQAsyncAndGetData(&query)
 	if err != nil {
 		return nil, err
 	}
 	if query.Timeout == 0 {
-		query.Timeout = defaultRequestTimeout
+		query.Timeout = 75 * time.Second
 	}
 	if query.Context == nil {
 		query.Context = context.Background()

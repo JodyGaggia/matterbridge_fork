@@ -187,22 +187,16 @@ func (f Field) ValueString(w io.Writer, shouldQuote func(s string) bool) error {
 					break arr
 				}
 			}
-			if i != a.Len()-1 {
-				if _, err = w.Write(Comma); err != nil {
-					break arr
-				}
+			if _, err = w.Write(Comma); err != nil {
+				break arr
 			}
 		}
 
 	case MapType:
 		a := reflect.ValueOf(f.Interface)
 		iter := a.MapRange()
-		// Already advance to first element
-		if !iter.Next() {
-			return nil
-		}
 	it:
-		for {
+		for iter.Next() {
 			if _, err = io.WriteString(w, iter.Key().String()); err != nil {
 				break it
 			}
@@ -225,15 +219,9 @@ func (f Field) ValueString(w io.Writer, shouldQuote func(s string) bool) error {
 					break it
 				}
 			}
-
-			if !iter.Next() {
-				break it
-			}
-
 			if _, err = w.Write(Comma); err != nil {
 				break it
 			}
-
 		}
 
 	case UnknownType:
@@ -281,19 +269,19 @@ func fieldForAny(key string, val interface{}) Field {
 		}
 		return Bool(key, *v)
 	case float64:
-		return Float(key, v)
+		return Float64(key, v)
 	case *float64:
 		if v == nil {
 			return nilField(key)
 		}
-		return Float(key, *v)
+		return Float64(key, *v)
 	case float32:
-		return Float(key, v)
+		return Float32(key, v)
 	case *float32:
 		if v == nil {
 			return nilField(key)
 		}
-		return Float(key, *v)
+		return Float32(key, *v)
 	case int:
 		return Int(key, v)
 	case *int:
@@ -302,33 +290,33 @@ func fieldForAny(key string, val interface{}) Field {
 		}
 		return Int(key, *v)
 	case int64:
-		return Int(key, v)
+		return Int64(key, v)
 	case *int64:
 		if v == nil {
 			return nilField(key)
 		}
-		return Int(key, *v)
+		return Int64(key, *v)
 	case int32:
-		return Int(key, v)
+		return Int32(key, v)
 	case *int32:
 		if v == nil {
 			return nilField(key)
 		}
-		return Int(key, *v)
+		return Int32(key, *v)
 	case int16:
-		return Int(key, int32(v))
+		return Int32(key, int32(v))
 	case *int16:
 		if v == nil {
 			return nilField(key)
 		}
-		return Int(key, int32(*v))
+		return Int32(key, int32(*v))
 	case int8:
-		return Int(key, int32(v))
+		return Int32(key, int32(v))
 	case *int8:
 		if v == nil {
 			return nilField(key)
 		}
-		return Int(key, int32(*v))
+		return Int32(key, int32(*v))
 	case string:
 		return String(key, v)
 	case *string:
@@ -344,33 +332,33 @@ func fieldForAny(key string, val interface{}) Field {
 		}
 		return Uint(key, *v)
 	case uint64:
-		return Uint(key, v)
+		return Uint64(key, v)
 	case *uint64:
 		if v == nil {
 			return nilField(key)
 		}
-		return Uint(key, *v)
+		return Uint64(key, *v)
 	case uint32:
-		return Uint(key, v)
+		return Uint32(key, v)
 	case *uint32:
 		if v == nil {
 			return nilField(key)
 		}
-		return Uint(key, *v)
+		return Uint32(key, *v)
 	case uint16:
-		return Uint(key, uint32(v))
+		return Uint32(key, uint32(v))
 	case *uint16:
 		if v == nil {
 			return nilField(key)
 		}
-		return Uint(key, uint32(*v))
+		return Uint32(key, uint32(*v))
 	case uint8:
-		return Uint(key, uint32(v))
+		return Uint32(key, uint32(v))
 	case *uint8:
 		if v == nil {
 			return nilField(key)
 		}
-		return Uint(key, uint32(*v))
+		return Uint32(key, uint32(*v))
 	case []byte:
 		if v == nil {
 			return nilField(key)

@@ -1,13 +1,12 @@
 package matterclient
 
 import (
-	"context"
 	"crypto/md5"
 	"encoding/json"
 	"fmt"
 	"strings"
 
-	"github.com/mattermost/mattermost/server/public/model"
+	"github.com/mattermost/mattermost-server/v6/model"
 )
 
 func (m *Client) parseResponse(rmsg *model.WebSocketResponse) {
@@ -15,7 +14,7 @@ func (m *Client) parseResponse(rmsg *model.WebSocketResponse) {
 }
 
 func (m *Client) DeleteMessage(postID string) error {
-	_, err := m.Client.DeletePost(context.TODO(), postID)
+	_, err := m.Client.DeletePost(postID)
 	if err != nil {
 		return err
 	}
@@ -26,7 +25,7 @@ func (m *Client) DeleteMessage(postID string) error {
 func (m *Client) EditMessage(postID string, text string) (string, error) {
 	post := &model.Post{Message: text, Id: postID}
 
-	res, _, err := m.Client.UpdatePost(context.TODO(), postID, post)
+	res, _, err := m.Client.UpdatePost(postID, post)
 	if err != nil {
 		return "", err
 	}
@@ -43,7 +42,7 @@ func (m *Client) GetFileLinks(filenames []string) []string {
 	var output []string
 
 	for _, f := range filenames {
-		res, _, err := m.Client.GetFileLink(context.TODO(), f)
+		res, _, err := m.Client.GetFileLink(f)
 		if err != nil {
 			// public links is probably disabled, create the link ourselves
 			output = append(output, uriScheme+m.Credentials.Server+model.APIURLSuffix+"/files/"+f)
@@ -59,7 +58,7 @@ func (m *Client) GetFileLinks(filenames []string) []string {
 
 func (m *Client) GetPosts(channelID string, limit int) *model.PostList {
 	for {
-		res, resp, err := m.Client.GetPostsForChannel(context.TODO(), channelID, 0, limit, "", false, false)
+		res, resp, err := m.Client.GetPostsForChannel(channelID, 0, limit, "", true)
 		if err == nil {
 			return res
 		}
@@ -70,26 +69,9 @@ func (m *Client) GetPosts(channelID string, limit int) *model.PostList {
 	}
 }
 
-func (m *Client) GetPostThread(postID string) *model.PostList {
-	opts := model.GetPostsOptions{
-		CollapsedThreads: false,
-		Direction:        "up",
-	}
-	for {
-		res, resp, err := m.Client.GetPostThreadWithOpts(context.TODO(), postID, "", opts)
-		if err == nil {
-			return res
-		}
-
-		if err := m.HandleRatelimit("GetPostThread", resp); err != nil {
-			return nil
-		}
-	}
-}
-
 func (m *Client) GetPostsSince(channelID string, time int64) *model.PostList {
 	for {
-		res, resp, err := m.Client.GetPostsSince(context.TODO(), channelID, time, false)
+		res, resp, err := m.Client.GetPostsSince(channelID, time, true)
 		if err == nil {
 			return res
 		}
@@ -101,7 +83,7 @@ func (m *Client) GetPostsSince(channelID string, time int64) *model.PostList {
 }
 
 func (m *Client) GetPublicLink(filename string) string {
-	res, _, err := m.Client.GetFileLink(context.TODO(), filename)
+	res, _, err := m.Client.GetFileLink(filename)
 	if err != nil {
 		return ""
 	}
@@ -113,7 +95,7 @@ func (m *Client) GetPublicLinks(filenames []string) []string {
 	var output []string
 
 	for _, f := range filenames {
-		res, _, err := m.Client.GetFileLink(context.TODO(), f)
+		res, _, err := m.Client.GetFileLink(f)
 		if err != nil {
 			continue
 		}
@@ -132,7 +114,7 @@ func (m *Client) PostMessage(channelID string, text string, rootID string) (stri
 	}
 
 	for {
-		res, resp, err := m.Client.CreatePost(context.TODO(), post)
+		res, resp, err := m.Client.CreatePost(post)
 		if err == nil {
 			return res.Id, nil
 		}
@@ -152,7 +134,7 @@ func (m *Client) PostMessageWithFiles(channelID string, text string, rootID stri
 	}
 
 	for {
-		res, resp, err := m.Client.CreatePost(context.TODO(), post)
+		res, resp, err := m.Client.CreatePost(post)
 		if err == nil {
 			return res.Id, nil
 		}
@@ -164,7 +146,7 @@ func (m *Client) PostMessageWithFiles(channelID string, text string, rootID stri
 }
 
 func (m *Client) SearchPosts(query string) *model.PostList {
-	res, _, err := m.Client.SearchPosts(context.TODO(), m.Team.ID, query, false)
+	res, _, err := m.Client.SearchPosts(m.Team.ID, query, false)
 	if err != nil {
 		return nil
 	}
@@ -182,7 +164,7 @@ func (m *Client) SendDirectMessageProps(toUserID string, msg string, rootID stri
 
 	for {
 		// create DM channel (only happens on first message)
-		_, resp, err := m.Client.CreateDirectChannel(context.TODO(), m.User.Id, toUserID)
+		_, resp, err := m.Client.CreateDirectChannel(m.User.Id, toUserID)
 		if err == nil {
 			break
 		}
@@ -212,7 +194,7 @@ func (m *Client) SendDirectMessageProps(toUserID string, msg string, rootID stri
 	post.SetProps(props)
 
 	for {
-		_, resp, err := m.Client.CreatePost(context.TODO(), post)
+		_, resp, err := m.Client.CreatePost(post)
 		if err == nil {
 			return nil
 		}
@@ -224,7 +206,7 @@ func (m *Client) SendDirectMessageProps(toUserID string, msg string, rootID stri
 }
 
 func (m *Client) UploadFile(data []byte, channelID string, filename string) (string, error) {
-	f, _, err := m.Client.UploadFile(context.TODO(), data, channelID, filename)
+	f, _, err := m.Client.UploadFile(data, channelID, filename)
 	if err != nil {
 		return "", err
 	}
